@@ -24,6 +24,21 @@ export async function POST(req: NextRequest) {
 
   const signature = req.headers.get('x-lynk-signature') || '';
   const diagnostics = signatureDiagnostics(payload, signature, merchantKey);
+
+  // Lynk's "Test Webhook" sends an unsigned connectivity probe without transaction fields.
+  // Acknowledge that harmless probe, but never process it as an order. Real transaction-shaped
+  // requests continue through mandatory signature verification below.
+  const isConnectivityProbe =
+    !diagnostics.signaturePresent &&
+    !diagnostics.amount &&
+    !diagnostics.refId &&
+    !diagnostics.messageId;
+  if (isConnectivityProbe) {
+    console.info('Lynk webhook connectivity probe accepted');
+    await log('ignored', 'Connectivity probe Lynk diterima', null).catch(() => {});
+    return NextResponse.json({ ok: true });
+  }
+
   if (!diagnostics.valid) {
     // Keep secrets and customer data out of logs; prefixes are enough to diagnose hash mismatches.
     console.warn('Lynk webhook rejected', diagnostics);
