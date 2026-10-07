@@ -29,7 +29,7 @@ export const RESULT_TTL_DAYS = 30;
 export const LYNK_URL: Record<CatalogItem, string> = {
   // Hardcoded fallback until the env vars are set in Vercel. The env var still wins when present.
   tarot: process.env.NEXT_PUBLIC_LYNK_URL_TAROT || 'https://lynk.id/rekan_ba/ymqq5wndw845/checkout',
-  palm: process.env.NEXT_PUBLIC_LYNK_URL_PALM || '#bacaan',
+  palm: process.env.NEXT_PUBLIC_LYNK_URL_PALM || 'https://lynk.id/rekan_ba/mvww1lexdv5o/checkout',
   aura: process.env.NEXT_PUBLIC_LYNK_URL_AURA || '#bacaan',
   bundle: process.env.NEXT_PUBLIC_LYNK_URL_BUNDLE || '#bacaan',
 };
