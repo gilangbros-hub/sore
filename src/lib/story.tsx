@@ -34,27 +34,29 @@ function loadFonts() {
 const svgUri = (inner: string, vb: string) =>
   `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${inner}</svg>`)}`;
 
-function Card({ id, reversed, label, tilt, featured }: { id: string; reversed: boolean; label: string; tilt: number; featured: boolean }) {
+function Card({ id, reversed, label, tilt, featured, w = 270 }: { id: string; reversed: boolean; label: string; tilt: number; featured: boolean; w?: number }) {
   const card = TAROT_BY_ID[id];
   const long = card.name.length > 9;
+  const h = Math.round((w * 168) / 100);
+  const scale = w / 270;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...(tilt ? { transform: `rotate(${tilt}deg) translateY(28px)` } : {}) }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...(tilt ? { transform: `rotate(${tilt}deg) translateY(${28 * scale}px)` } : {}) }}>
       <div
         style={{
-          display: 'flex', position: 'relative', width: 270, height: 454, borderRadius: 22, overflow: 'hidden',
+          display: 'flex', position: 'relative', width: w, height: h, borderRadius: 22 * scale, overflow: 'hidden',
           ...(reversed ? { transform: 'rotate(180deg)' } : {}),
           boxShadow: `0 30px 60px -20px rgba(15,12,36,.8), 0 0 0 2px rgba(227,197,132,${featured ? 0.9 : 0.7})`,
         }}
       >
-        <img src={svgUri(cardSvg(card, { withText: false }), '0 0 100 168')} width={270} height={454} alt="" />
-        <div style={{ position: 'absolute', top: 30, left: 0, right: 0, display: 'flex', justifyContent: 'center', fontFamily: 'Cormorant', fontWeight: 600, fontSize: 30, color: '#2A2353' }}>
+        <img src={svgUri(cardSvg(card, { withText: false }), '0 0 100 168')} width={w} height={h} alt="" />
+        <div style={{ position: 'absolute', top: 30 * scale, left: 0, right: 0, display: 'flex', justifyContent: 'center', fontFamily: 'Cormorant', fontWeight: 600, fontSize: 30 * scale, color: '#2A2353' }}>
           {card.numeral}
         </div>
-        <div style={{ position: 'absolute', top: long ? 394 : 388, left: 0, right: 0, display: 'flex', justifyContent: 'center', fontFamily: 'Jakarta', fontWeight: 700, fontSize: long ? 17 : 23, letterSpacing: long ? 2 : 4.3, color: '#2A2353' }}>
+        <div style={{ position: 'absolute', top: (long ? 394 : 388) * scale, left: 0, right: 0, display: 'flex', justifyContent: 'center', fontFamily: 'Jakarta', fontWeight: 700, fontSize: (long ? 17 : 23) * scale, letterSpacing: (long ? 2 : 4.3) * scale, color: '#2A2353' }}>
           {card.name.toUpperCase()}
         </div>
       </div>
-      <div style={{ display: 'flex', marginTop: 28, fontFamily: 'Jakarta', fontWeight: 600, fontSize: 28, color: '#BDB4D3' }}>{label}</div>
+      <div style={{ display: 'flex', marginTop: 28 * scale, fontFamily: 'Jakarta', fontWeight: 600, fontSize: Math.max(18, 28 * scale), color: '#BDB4D3' }}>{label}</div>
     </div>
   );
 }
@@ -77,15 +79,16 @@ function auraSvg(domId: string, secId: string) {
 
 export async function storyImage(kind: ProductKind, result: TarotResult | PalmResult | AuraResult): Promise<ImageResponse> {
   const highlight = result.story_line;
-  const eyebrow = kind === 'tarot' ? 'Tarot 3 Kartu' : kind === 'aura' ? 'Warna auraku' : 'Garis tanganku';
+  const eyebrow = kind === 'tarot' ? 'Tarot 5 Kartu' : kind === 'aura' ? 'Warna auraku' : 'Garis tanganku';
 
   let visual: React.ReactNode = null;
   if (kind === 'tarot') {
     const r = result as TarotResult;
+    const mid = (r.cards.length - 1) / 2;
     visual = (
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 430, height: 620, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 36 }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 470, height: 560, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 18 }}>
         {r.cards.map((c, i) => (
-          <Card key={i} id={c.card} reversed={c.reversed} label={TAROT_POSITIONS[i]} tilt={i === 0 ? -6 : i === 2 ? 6 : 0} featured={i === 1} />
+          <Card key={i} id={c.card} reversed={c.reversed} label={TAROT_POSITIONS[i]} tilt={Math.round((i - mid) * 5)} featured={i === Math.round(mid)} w={162} />
         ))}
       </div>
     );

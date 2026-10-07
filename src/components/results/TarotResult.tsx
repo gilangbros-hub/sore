@@ -8,19 +8,19 @@ import { TAROT_BY_ID, TAROT_POSITIONS } from '@/lib/tarot';
 import type { TarotResult as T } from '@/lib/results';
 
 export function TarotResult({ r, nickname, focus, deliveredAt, token, discussHref }: { r: T; nickname: string; focus: string | null; deliveredAt: string; token: string | null; discussHref: string | null }) {
-  const [open, setOpen] = useState([false, false, false]);
+  const [open, setOpen] = useState(() => r.cards.map(() => false));
   const all = open.every(Boolean);
 
   return (
     <div className="mx-auto flex max-w-[640px] flex-col gap-8">
       <div className="flex flex-col items-center gap-2.5 text-center">
-        <p className="eyebrow">Tarot 3 Kartu{focus ? ` · Fokus: ${focus}` : ''}</p>
+        <p className="eyebrow">Tarot 5 Kartu{focus ? ` · Fokus: ${focus}` : ''}</p>
         <h1 className="m-0 font-serif text-4xl font-semibold leading-[1.05] sm:text-[40px]">Bacaan untuk {nickname}</h1>
         <p className="m-0 max-w-[34ch] text-base leading-[1.6] text-mist-300">Ketuk setiap kartu untuk membukanya, satu per satu. Ambil waktumu.</p>
         <DeliveredPill at={deliveredAt} />
       </div>
 
-      <div className="mx-auto grid w-full max-w-[540px] grid-cols-3 gap-3">
+      <div className="mx-auto grid w-full max-w-[640px] grid-cols-2 gap-3 min-[560px]:grid-cols-5">
         {r.cards.map((c, i) => {
           const card = TAROT_BY_ID[c.card];
           const label = TAROT_POSITIONS[i];
@@ -79,17 +79,17 @@ export function TarotResult({ r, nickname, focus, deliveredAt, token, discussHre
             <p className="quote">{r.question}</p>
           </section>
         ) : (
-          <p className="m-0 text-center text-sm text-mist-300">Buka ketiga kartu untuk membaca pesan penutup.</p>
+          <p className="m-0 text-center text-sm text-mist-300">Buka kelima kartu untuk membaca pesan penutup.</p>
         )}
       </div>
 
       <ShareSection discussHref={discussHref}
         kind="tarot"
         token={token}
-        blurb="Kartu Story berisi tiga kartumu dan satu kalimat pilihan. Tanpa nama, tanpa isi bacaan lengkap."
+        blurb="Kartu Story berisi kelima kartumu dan satu kalimat pilihan. Tanpa nama, tanpa isi bacaan lengkap."
         preview={
           <div aria-hidden="true" className="flex h-[117px] w-[66px] flex-none flex-col items-center justify-center gap-1.5 rounded-[10px] shadow-[inset_0_0_0_1px_rgba(227,197,132,.5)]" style={{ background: 'linear-gradient(180deg, #15122E 0%, #3A2E5E 55%, #C9835A 100%)' }}>
-            <div className="flex gap-[3px]">{[0, 1, 2].map((k) => <span key={k} className="h-5 w-3 rounded-sm bg-card-face" />)}</div>
+            <div className="flex gap-[2px]">{[0, 1, 2, 3, 4].map((k) => <span key={k} className="h-5 w-[7px] rounded-sm bg-card-face" />)}</div>
             <span className="h-[3px] w-10 rounded-sm bg-ivory-50/70" />
             <span className="h-[3px] w-[30px] rounded-sm bg-ivory-50/50" />
           </div>

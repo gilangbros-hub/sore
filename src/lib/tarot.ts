@@ -137,7 +137,7 @@ export const MAJOR_ARCANA: TarotCard[] = [
 
 export const TAROT_BY_ID: Record<string, TarotCard> = Object.fromEntries(MAJOR_ARCANA.map((c) => [c.id, c]));
 
-export const TAROT_POSITIONS = ['Masa lalu', 'Sekarang', 'Arah ke depan'] as const;
+export const TAROT_POSITIONS = ['Situasimu', 'Yang membantu', 'Yang menghambat', 'Saran', 'Arah ke depan'] as const;
 
 /** Full card SVG (as a string) so the same art renders on the page and inside the Story image. */
 export function cardSvg(card: TarotCard, opts: { withText?: boolean; reversed?: boolean } = {}): string {

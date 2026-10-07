@@ -86,8 +86,8 @@ export default function Home() {
             <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
               <ProductCard
                 item="tarot"
-                title="Tarot 3 Kartu"
-                desc="Masa lalu · Sekarang · Arah ke depan. Tiga kartu, dibaca sesuai fokusmu."
+                title="Tarot 5 Kartu"
+                desc="Menjawab pertanyaan kamu. Lima kartu dibaca satu per satu, sesuai fokusmu."
                 cta="Pilih tarot"
                 art={
                   <Tile>

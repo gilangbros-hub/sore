@@ -22,7 +22,7 @@ const joinL = (a: unknown) => (Array.isArray(a) ? a.join('\n') : '');
 function toForm(kind: ProductKind, r: any): Form {
   if (!r) {
     return kind === 'tarot'
-      ? { c0: 'bulan', c1: 'bintang', c2: 'matahari', r0: false, r1: false, r2: false }
+      ? { c0: 'bulan', c1: 'bintang', c2: 'matahari', c3: 'bintang', c4: 'dunia', r0: false, r1: false, r2: false, r3: false, r4: false }
       : kind === 'aura'
         ? { dominant: 'jingga', secondary: 'ungu' }
         : {};
@@ -52,7 +52,7 @@ function fromForm(kind: ProductKind, f: Form) {
   const s = (k: string) => String(f[k] ?? '').trim();
   if (kind === 'tarot') {
     return {
-      cards: [0, 1, 2].map((i) => ({ card: s(`c${i}`), reversed: !!f[`r${i}`], paragraphs: paras(f[`p${i}`]) })),
+      cards: TAROT_POSITIONS.map((_, i) => ({ card: s(`c${i}`), reversed: !!f[`r${i}`], paragraphs: paras(f[`p${i}`]) })),
       message: paras(f.message), question: s('question'), story_line: s('story_line'),
     };
   }
@@ -155,7 +155,7 @@ export function ResultForm({ code, kind, status, initial, meta: initialMeta }: {
 
       {kind === 'tarot' && (
         <>
-          {[0, 1, 2].map((i) => (
+          {TAROT_POSITIONS.map((_, i) => (
             <fieldset key={i} className="m-0 flex flex-col gap-3 rounded-tile border-0 bg-night-900 p-4">
               <legend className="float-left mb-1 w-full p-0 text-sm font-bold text-gold-300">{i + 1} · {TAROT_POSITIONS[i]}</legend>
               <div className="flex flex-wrap items-end gap-3">

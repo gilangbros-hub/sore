@@ -5,7 +5,7 @@ import { addStock, sellManual } from './actions';
 
 const PRODUCTS = (
   <>
-    <option value="tarot">Tarot 3 Kartu</option>
+    <option value="tarot">Tarot 5 Kartu - Menjawab Pertanyaan Kamu</option>
     <option value="palm">Baca Garis Tangan</option>
     <option value="aura">Baca Aura</option>
     <option value="bundle">Paket Lengkap (3 kode)</option>

@@ -15,7 +15,7 @@ export const tarotResult = z.object({
         paragraphs,
       }),
     )
-    .length(3),
+    .length(5),
   message: paragraphs,
   question: para,
   story_line: storyLine,

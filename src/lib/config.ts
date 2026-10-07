@@ -12,7 +12,7 @@ export const PRICES: Record<CatalogItem, number> = {
 };
 
 export const PRODUCT_NAME: Record<ProductKind, string> = {
-  tarot: 'Tarot 3 Kartu',
+  tarot: 'Tarot 5 Kartu - Menjawab Pertanyaan Kamu',
   palm: 'Baca Garis Tangan',
   aura: 'Baca Aura',
 };
