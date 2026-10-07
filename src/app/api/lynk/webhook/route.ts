@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/supabase';
 import { assignCode, type Order } from '@/lib/orders';
-import { mapProduct, parseAnswers, verifySignature, type LynkPayload } from '@/lib/lynk';
+import { mapProduct, parseAnswers, signatureDiagnostics, type LynkPayload } from '@/lib/lynk';
 import { normalizeWa } from '@/lib/codes';
 import type { ProductKind } from '@/lib/config';
 
@@ -23,9 +23,16 @@ export async function POST(req: NextRequest) {
   }
 
   const signature = req.headers.get('x-lynk-signature') || '';
-  if (!merchantKey || !verifySignature(payload, signature, merchantKey)) {
-    // Logged without the payload so a forged request cannot fill the table with junk.
-    await log('rejected', 'Signature tidak valid', null).catch(() => {});
+  const diagnostics = signatureDiagnostics(payload, signature, merchantKey);
+  if (!diagnostics.valid) {
+    // Keep secrets and customer data out of logs; prefixes are enough to diagnose hash mismatches.
+    console.warn('Lynk webhook rejected', diagnostics);
+    const reason = !diagnostics.keyConfigured
+      ? 'Merchant key belum terbaca oleh deployment'
+      : !diagnostics.signaturePresent
+        ? 'Header X-Lynk-Signature tidak dikirim'
+        : 'Signature tidak cocok';
+    await log('rejected', reason, null).catch(() => {});
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

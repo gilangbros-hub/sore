@@ -21,11 +21,33 @@ export type LynkPayload = {
   };
 };
 
-export function verifySignature(p: LynkPayload, signature: string, merchantKey: string): boolean {
+export function signatureDiagnostics(p: LynkPayload, signature: string, merchantKey: string) {
   const md = p.data?.message_data;
-  const s = `${md?.totals?.grandTotal ?? ''}${md?.refId ?? ''}${p.data?.message_id ?? ''}${merchantKey}`;
-  const expected = createHash('sha256').update(s, 'utf8').digest('hex');
-  return safeEqual(signature.trim().toLowerCase(), expected);
+  const amount = md?.totals?.grandTotal ?? '';
+  const refId = md?.refId ?? '';
+  const messageId = p.data?.message_id ?? '';
+  const cleanKey = merchantKey.trim();
+  const received = signature.trim().toLowerCase().replace(/^sha256=/, '');
+  const expected = createHash('sha256')
+    .update(`${amount}${refId}${messageId}${cleanKey}`, 'utf8')
+    .digest('hex');
+
+  return {
+    valid: safeEqual(received, expected),
+    amount: String(amount),
+    amountType: typeof amount,
+    refId: String(refId),
+    messageId: String(messageId),
+    keyConfigured: cleanKey.length > 0,
+    signaturePresent: received.length > 0,
+    signatureLength: received.length,
+    receivedPrefix: received.slice(0, 10),
+    expectedPrefix: expected.slice(0, 10),
+  };
+}
+
+export function verifySignature(p: LynkPayload, signature: string, merchantKey: string): boolean {
+  return signatureDiagnostics(p, signature, merchantKey).valid;
 }
 
 /**
