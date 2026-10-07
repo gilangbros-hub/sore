@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { db, PHOTO_BUCKET } from '@/lib/supabase';
+import { db } from '@/lib/supabase';
 import { safeEqual } from '@/lib/secrets';
-import { PHOTO_TTL_HOURS } from '@/lib/config';
 
-// Called hourly by Supabase pg_cron (see supabase/schema.sql) and daily by Vercel Cron as a backup.
-// Both send "Authorization: Bearer <CRON_SECRET>".
+// Daily Vercel Cron (vercel.json). Sends "Authorization: Bearer <CRON_SECRET>".
+// Also keeps the free Supabase project from pausing for inactivity.
 
 export const dynamic = 'force-dynamic';
 
@@ -15,41 +14,21 @@ export async function GET(req: NextRequest) {
 
   const supa = db();
   const now = new Date();
-  const cutoff = new Date(now.getTime() - PHOTO_TTL_HOURS * 3600_000);
-  let photosDeleted = 0;
 
-  // 1. Delete every stored photo older than the TTL, including orphans from abandoned uploads.
-  const { data: folders } = await supa.storage.from(PHOTO_BUCKET).list('', { limit: 1000 });
-  for (const folder of folders ?? []) {
-    if (folder.id) continue; // a file at the root, not a folder
-    const { data: files } = await supa.storage.from(PHOTO_BUCKET).list(folder.name, { limit: 100 });
-    const old = (files ?? []).filter((f) => f.created_at && new Date(f.created_at) < cutoff).map((f) => `${folder.name}/${f.name}`);
-    if (old.length) {
-      const { error } = await supa.storage.from(PHOTO_BUCKET).remove(old);
-      if (!error) photosDeleted += old.length;
-    }
-  }
-  await supa
-    .from('orders')
-    .update({ photo_deleted_at: now.toISOString() })
-    .lt('photo_delete_at', now.toISOString())
-    .is('photo_deleted_at', null)
-    .not('photo_path', 'is', null);
-
-  // 2. Expire readings past their viewing window and scrub personal data.
+  // Expire readings past their viewing window and scrub personal data.
   const { data: expired } = await supa
     .from('orders')
     .update({
       status: 'expired',
-      nickname: null, wa_number: null, question: null, buyer_email: null,
-      result: null, result_draft: null,
+      buyer_name: null, buyer_email: null, buyer_phone: null, lynk_answers: null,
+      nickname: null, focus: null, result: null, result_draft: null,
     })
     .eq('status', 'ready')
     .lt('expires_at', now.toISOString())
     .select('code');
 
-  // 3. Keep the webhook log short.
+  // Keep the webhook log short; it holds buyer contact details.
   await supa.from('webhook_events').delete().lt('received_at', new Date(now.getTime() - 30 * 86400_000).toISOString());
 
-  return NextResponse.json({ ok: true, photosDeleted, expired: expired?.length ?? 0 });
+  return NextResponse.json({ ok: true, expired: expired?.length ?? 0 });
 }

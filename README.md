@@ -1,52 +1,47 @@
 # Ruang Senja
 
-Situs bacaan tarot, garis tangan, dan aura. Next.js 16 (App Router) + Tailwind, Supabase (database + penyimpanan foto), deploy di Vercel. Semua di tier gratis.
+Situs bacaan tarot, garis tangan, dan aura. Next.js 16 (App Router) + Tailwind, Supabase (database), deploy di Vercel. Semua di tier gratis.
 
 ## Alur
 
-1. Pembeli pilih bacaan di beranda, bayar di Lynk.id.
-2. Lynk.id kirim webhook ke `/api/lynk/webhook`. Situs membuat kode akses per produk (paket = 3 kode) dan menyimpannya dengan email pembeli.
-3. Pembeli buka `/klaim`, masukkan email Lynk.id, dapat kodenya. Atau `/kode` kalau sudah punya.
-4. Pembeli isi data di `/isi/[kode]` (foto langsung ke Supabase Storage, diperkecil dan EXIF dibuang di browser).
-5. Kamu tulis hasilnya di `/admin`, klik **Terbitkan**, lalu **Buka WhatsApp & kirim** (pesan sudah terisi).
-6. Pembeli buka `/b/[token]`. Bisa dibuka lagi selama 30 hari, lalu datanya dihapus otomatis. Foto dihapus setelah 24 jam.
+1. Pembeli pilih paket di beranda → diarahkan ke halaman produk Lynk.id → bayar.
+2. Lynk.id kirim webhook ke `/api/lynk/webhook` (signature divalidasi). Situs mengambil satu kode dari stok (paket = 3 kode) dan mencatat nama, email, dan nomor HP pembeli.
+3. Di `/admin`, pesanan muncul di **Kirim kode ke pembeli**. Klik **Buka WhatsApp & kirim kode**: pesan berisi kode dan link progres sudah terisi.
+4. Pembeli masukkan kode di `/kode` → halaman progres `/status/[kode]`. Di situ ada daftar data yang perlu dikirim, panduan foto, dan tombol WhatsApp dengan template pesan.
+5. Data dan foto masuk lewat WhatsApp. Di admin isi nama panggilan (dan fokus/tangan), klik **Data sudah diterima** → progres pembeli pindah ke "sedang disiapkan".
+6. Tulis bacaan, **Terbitkan**, lalu **Buka WhatsApp & kirim link**.
+7. Pembeli buka `/b/[token]`, ada tombol WhatsApp untuk ngobrol soal bacaannya. Link aktif 30 hari, setelah itu data pribadi dihapus otomatis.
 
 ## Setup (sekali)
 
 ### 1. Supabase
-
-1. Buat project di supabase.com (pilih region **Southeast Asia (Singapore)**).
+1. Buat project di supabase.com, region **Southeast Asia (Singapore)**.
 2. SQL Editor → tempel isi `supabase/schema.sql` → Run.
-3. Project Settings → API Keys: catat URL, publishable key, dan secret key.
+3. Project Settings → API Keys: catat Project URL dan secret key.
 
 ### 2. Vercel
-
 1. Import repo ini di vercel.com → New Project.
-2. Isi Environment Variables sesuai `.env.example`. Minimal: `NEXT_PUBLIC_SITE_URL`, tiga variabel Supabase, `ADMIN_PASSWORD` (min. 12 karakter), `CRON_SECRET`, `LYNK_WEBHOOK_SECRET`. Buat secret pakai `openssl rand -hex 24`.
-3. Deploy. Setelah dapat domain, update `NEXT_PUBLIC_SITE_URL` lalu redeploy.
+2. Isi Environment Variables sesuai `.env.example`. Secret acak: `openssl rand -hex 24`.
+3. Deploy. Setelah dapat domain, isi `NEXT_PUBLIC_SITE_URL` lalu redeploy.
 
-### 3. Cleanup per jam
+Cron harian di `vercel.json` menghapus data bacaan yang lewat 30 hari, sekaligus menjaga project Supabase gratis tidak di-pause.
 
-Vercel Hobby cuma boleh cron harian (sudah ada di `vercel.json` sebagai cadangan). Supaya janji "foto dihapus dalam 24 jam" tepat:
+### 3. Lynk.id
+1. Lynk.id → Settings → Integrations → Webhook. URL: `https://<domain>/api/lynk/webhook`
+2. Simpan, lalu salin **merchant key** yang muncul ke env `LYNK_MERCHANT_KEY` dan redeploy.
+3. Wajibkan nomor WhatsApp pembeli di checkout Lynk (kode dikirim ke nomor itu).
+4. Nama produk di Lynk harus mengandung kata `tarot`, `garis tangan`, `aura`, atau `paket`. Kalau tidak, isi `LYNK_PRODUCT_MAP`.
+5. Isi `NEXT_PUBLIC_LYNK_URL_*` dan `NEXT_PUBLIC_WA_NUMBER`.
 
-1. Supabase → Database → Extensions: aktifkan `pg_cron` dan `pg_net`.
-2. Jalankan blok `cron.schedule` di bagian bawah `supabase/schema.sql` setelah mengganti `YOUR_SITE` dan `YOUR_CRON_SECRET`.
+Opsional: tambahkan "Additional Questions" di produk Lynk (misalnya nama panggilan, pertanyaan tarot). Jawabannya tampil di halaman pesanan admin.
 
-Ini juga menjaga project Supabase gratis tidak di-pause karena tidak aktif.
+## Stok kode
 
-### 4. Lynk.id
-
-1. Lynk.id → Settings → Integrations → Webhook. URL: `https://<domain>/api/lynk/webhook?key=<LYNK_WEBHOOK_SECRET>`
-2. Klik Test URL, lalu cek panel **Webhook Lynk.id** di `/admin`. Payload mentah tersimpan di sana.
-3. Di deskripsi/pesan terima kasih tiap produk Lynk, arahkan pembeli ke `https://<domain>/klaim`.
-4. Kalau nama produk Lynk tidak mengandung kata tarot / garis tangan / aura / paket, isi `LYNK_PRODUCT_MAP`.
-5. Isi `NEXT_PUBLIC_LYNK_URL_*` dan `NEXT_PUBLIC_WA_NUMBER`, lalu redeploy.
-
-Kalau webhook gagal dikenali, statusnya `unmatched` di admin. Buat kodenya manual di panel **Buat kode manual** dengan email pembeli, lalu pembeli tetap bisa klaim di `/klaim`.
+Buat stok di panel **Stok kode** di admin. Webhook mengambil kode tertua; kalau stok habis, kode baru dibuat otomatis. Kode stok yang kamu berikan langsung ke orang aktif sendiri saat pertama dimasukkan di `/kode`. Pembayaran di luar Lynk: pakai **Jual manual**.
 
 ## Mengubah harga dan jam operasional
 
-Harga: `src/lib/config.ts` (`PRICES`). Jam tutup/buka: env `NEXT_PUBLIC_JAM_TUTUP` / `NEXT_PUBLIC_JAM_BUKA`.
+Harga: `src/lib/config.ts` (`PRICES`). Jam: env `NEXT_PUBLIC_JAM_TUTUP` / `NEXT_PUBLIC_JAM_BUKA`. Semua template pesan WhatsApp: `src/lib/wa.ts`.
 
 ## Develop lokal
 

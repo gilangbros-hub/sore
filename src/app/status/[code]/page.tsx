@@ -4,12 +4,14 @@ import { notFound, redirect } from 'next/navigation';
 import { ChatIcon, Header, MoonIcon, Page, Stars } from '@/components/Chrome';
 import { CopyButton } from '@/components/CopyButton';
 import { PALM_PATH } from '@/components/Art';
+import { AuraGuide, PalmGuide } from '@/components/PhotoGuides';
 import { getOrderByCode } from '@/lib/orders';
 import { CODE_RE, normalizeCode } from '@/lib/codes';
 import { maskWa, wibStamp, wibTime } from '@/lib/format';
 import { HOURS, PRODUCT_NAME, waLink, type ProductKind } from '@/lib/config';
+import { dataRequestText, discussText, helpText } from '@/lib/wa';
 
-export const metadata: Metadata = { title: 'Status pesanan', robots: { index: false } };
+export const metadata: Metadata = { title: 'Progres pesanan', robots: { index: false } };
 
 function Waiting({ kind }: { kind: ProductKind }) {
   return (
@@ -61,6 +63,12 @@ function Waiting({ kind }: { kind: ProductKind }) {
   );
 }
 
+const NEEDS: Record<ProductKind, string[]> = {
+  tarot: ['Nama panggilan (nama asli tidak perlu)', 'Fokus bacaan: Cinta, Karier, Keuangan, Diri sendiri, atau Umum', 'Pertanyaanmu, kalau ada. Pertanyaan terbuka biasanya menghasilkan bacaan yang lebih berguna daripada ya/tidak.'],
+  palm: ['Nama panggilan (nama asli tidak perlu)', 'Tangan yang difoto: kanan atau kiri. Bingung? Pakai tangan yang paling sering kamu gunakan.', 'Satu foto telapak tangan yang jelas'],
+  aura: ['Nama panggilan (nama asli tidak perlu)', 'Satu foto wajah yang natural, tanpa filter'],
+};
+
 type Step = { title: string; sub: string; state: 'done' | 'now' | 'todo' };
 
 function Timeline({ steps }: { steps: Step[] }) {
@@ -100,56 +108,102 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
   const code = normalizeCode(decodeURIComponent((await params).code));
   if (!CODE_RE.test(code)) notFound();
   const order = await getOrderByCode(code);
-  if (!order) redirect(`/kode?c=${code}`);
-  if (order.status === 'unused') redirect(`/isi/${code}`);
-  if (order.status === 'expired') redirect(`/kode?c=${code}`);
+  if (!order || order.status === 'stock' || order.status === 'expired') redirect(`/kode?c=${code}`);
 
-  const ready = order.status === 'ready';
-  const submitted = new Date(order.submitted_at!);
-  const eta = new Date(submitted.getTime() + 3 * 3600_000);
+  const st = order.status;
+  const ready = st === 'ready';
+  const needsData = st === 'sold';
   const productLine =
-    order.product === 'tarot' ? `${PRODUCT_NAME.tarot} · ${order.focus}`
-    : order.product === 'palm' ? `${PRODUCT_NAME.palm} · ${order.hand === 'kiri' ? 'Kiri' : 'Kanan'}`
-    : PRODUCT_NAME.aura;
-  const waText = `Halo Ruang Senja, aku mau tanya soal pesananku. Kode: ${code}`;
+    order.product === 'tarot' && order.focus ? `${PRODUCT_NAME.tarot} · ${order.focus}`
+    : order.product === 'palm' && order.hand ? `${PRODUCT_NAME.palm} · ${order.hand === 'kiri' ? 'Kiri' : 'Kanan'}`
+    : PRODUCT_NAME[order.product];
+  const eta = order.data_received_at ? new Date(new Date(order.data_received_at).getTime() + 3 * 3600_000) : null;
 
   const steps: Step[] = [
-    { title: 'Pesanan diterima', sub: wibStamp(submitted), state: 'done' },
+    { title: 'Pembayaran diterima', sub: order.sold_at ? wibStamp(order.sold_at) : 'Lewat Lynk.id', state: 'done' },
+    needsData
+      ? { title: 'Kirim datamu lewat WhatsApp', sub: 'Langkah ini menunggu kamu', state: 'now' }
+      : { title: 'Data diterima', sub: order.data_received_at ? wibStamp(order.data_received_at) : 'Lewat WhatsApp', state: 'done' },
+    st === 'reading'
+      ? { title: 'Bacaan sedang disiapkan', sub: eta ? `Estimasi selesai sebelum ${wibTime(eta)} WIB` : 'Biasanya 1–3 jam', state: 'now' }
+      : { title: ready ? 'Bacaan selesai disiapkan' : 'Bacaan disiapkan', sub: 'Biasanya 1–3 jam setelah data diterima', state: ready ? 'done' : 'todo' },
     ready
       ? { title: 'Bacaan sudah siap', sub: wibStamp(order.delivered_at!), state: 'done' }
-      : { title: 'Bacaan sedang disiapkan', sub: `Estimasi selesai sebelum ${wibTime(eta)} WIB`, state: 'now' },
-    { title: 'Dikirim ke WhatsApp', sub: 'Link bisa dibuka berkali-kali', state: ready ? 'done' : 'todo' },
+      : { title: 'Bacaan siap dibuka', sub: 'Link-nya juga dikirim ke WhatsApp-mu', state: 'todo' },
   ];
 
   return (
     <Page
       className="relative overflow-hidden"
-      header={<Header right={<a href={waLink(waText)} className="btn btn-secondary btn-sm px-4">Bantuan</a>} />}
+      header={<Header right={<a href={waLink(helpText(code))} className="btn btn-secondary btn-sm px-4">Bantuan</a>} />}
     >
       <Stars positions={[[10, 6, 0, 3], [84, 5, 1.4, 3], [72, 18, 2.6, 2], [16, 22, 0.8, 2]]} />
       <main className="relative flex-1 px-5 pb-14 pt-4">
         <div className="mx-auto flex max-w-[520px] flex-col gap-7">
           <div className="flex flex-col items-center gap-[18px] text-center">
             <Waiting kind={order.product} />
-            {ready ? (
+            <p className="eyebrow">{productLine}</p>
+            {needsData && (
               <>
-                <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Bacaanmu sudah siap</h1>
+                <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Satu langkah lagi</h1>
                 <p className="text-pretty m-0 text-base leading-[1.65] text-mist-300">
-                  Link-nya juga sudah kami kirim ke WhatsApp{' '}
-                  <strong className="whitespace-nowrap font-semibold text-ivory-50">{maskWa(order.wa_number)}</strong>. Kamu bisa membukanya lagi sesering yang kamu mau.
-                </p>
-                <Link href={`/b/${order.result_token}`} className="btn btn-primary w-full">Lihat bacaanku</Link>
-              </>
-            ) : (
-              <>
-                <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Pesananmu sudah kami terima</h1>
-                <p className="text-pretty m-0 text-base leading-[1.65] text-mist-300">
-                  Bacaanmu sedang disiapkan dengan tenang. Dalam 1–3 jam, link-nya kami kirim ke WhatsApp{' '}
-                  <strong className="whitespace-nowrap font-semibold text-ivory-50">{maskWa(order.wa_number)}</strong>.
+                  Pembayaranmu sudah kami terima. Kirim data untuk bacaanmu lewat WhatsApp, kodemu sudah otomatis tertulis di pesan.
                 </p>
               </>
             )}
+            {st === 'reading' && (
+              <>
+                <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Bacaanmu sedang disiapkan</h1>
+                <p className="text-pretty m-0 text-base leading-[1.65] text-mist-300">
+                  Datamu sudah kami terima. Dalam 1–3 jam, link bacaannya kami kirim ke WhatsApp
+                  {order.buyer_phone ? <> <strong className="whitespace-nowrap font-semibold text-ivory-50">{maskWa(order.buyer_phone)}</strong></> : '-mu'}.
+                </p>
+              </>
+            )}
+            {ready && (
+              <>
+                <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Bacaanmu sudah siap</h1>
+                <p className="text-pretty m-0 text-base leading-[1.65] text-mist-300">Kamu bisa membukanya lagi sesering yang kamu mau.</p>
+                <Link href={`/b/${order.result_token}`} className="btn btn-primary w-full">Lihat bacaanku</Link>
+              </>
+            )}
           </div>
+
+          {needsData && (
+            <section aria-labelledby="kirim-title" className="card-block flex flex-col gap-4 p-5">
+              <h2 id="kirim-title" className="m-0 text-base font-bold">Yang perlu kamu kirim</h2>
+              <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+                {NEEDS[order.product].map((n) => (
+                  <li key={n} className="flex gap-2.5 text-[15px] leading-[1.55]">
+                    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" className="mt-1 flex-none"><path d="M8 1l1.6 5.4L15 8l-5.4 1.6L8 15l-1.6-5.4L1 8l5.4-1.6z" fill="#F0B067" /></svg>
+                    {n}
+                  </li>
+                ))}
+              </ul>
+              {order.product === 'palm' && (
+                <div className="flex flex-col gap-3">
+                  <h3 className="m-0 text-[15px] font-semibold">Cara memotret telapak tangan</h3>
+                  <PalmGuide />
+                </div>
+              )}
+              {order.product === 'aura' && (
+                <div className="flex flex-col gap-3">
+                  <h3 className="m-0 text-[15px] font-semibold">Cara memotret wajah</h3>
+                  <AuraGuide />
+                </div>
+              )}
+              <a href={waLink(dataRequestText(order.product, code))} className="btn btn-primary w-full">
+                <ChatIcon />
+                Kirim data via WhatsApp
+              </a>
+              {order.product !== 'tarot' && (
+                <p className="m-0 flex items-start gap-2.5 text-[13px] leading-[1.55] text-mist-300">
+                  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" className="mt-0.5 flex-none"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="#E3C584" strokeWidth="1.4" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="#E3C584" strokeWidth="1.4" /></svg>
+                  <span>Fotomu hanya dipakai untuk bacaan ini dan kami hapus setelah bacaanmu dikirim.</span>
+                </p>
+              )}
+            </section>
+          )}
 
           <Timeline steps={steps} />
 
@@ -157,7 +211,7 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
             <h2 id="ringkas-pesanan" className="m-0 text-base font-bold">Detail pesanan</h2>
             <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 text-[15px]">
               <dt className="text-mist-300">Bacaan</dt><dd className="m-0 font-semibold">{productLine}</dd>
-              <dt className="text-mist-300">Untuk</dt><dd className="m-0 font-semibold">{order.nickname}</dd>
+              {order.nickname && (<><dt className="text-mist-300">Untuk</dt><dd className="m-0 font-semibold">{order.nickname}</dd></>)}
               <dt className="text-mist-300">Kode</dt>
               <dd className="m-0 flex flex-wrap items-center gap-2.5">
                 <span className="font-bold tracking-[.12em]">{code}</span>
@@ -165,7 +219,7 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
               </dd>
             </dl>
             <p className="m-0 text-sm leading-[1.6] text-mist-300">
-              Simpan kode ini. Kamu bisa cek status atau membuka bacaanmu lagi lewat <Link href="/kode" className="font-semibold">Punya kode?</Link>
+              Simpan kode ini. Kamu bisa cek progres atau membuka bacaanmu lagi lewat <Link href="/kode" className="font-semibold">Punya kode?</Link>
             </p>
           </section>
 
@@ -173,18 +227,20 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
             <p className="m-0 flex items-start gap-2.5 text-sm leading-[1.6] text-mist-300">
               <MoonIcon size={18} />
               <span>
-                Kamu boleh menutup halaman ini. Pesanan yang masuk setelah <span className="text-gold-300">{HOURS.close}</span> WIB dikirim mulai{' '}
+                Kamu boleh menutup halaman ini. Data yang masuk setelah <span className="text-gold-300">{HOURS.close}</span> WIB dibaca mulai{' '}
                 <span className="text-gold-300">{HOURS.open}</span> WIB keesokan harinya.
               </span>
             </p>
           )}
 
           <section aria-labelledby="bantuan-title" className="flex flex-col gap-3 rounded-card bg-night-700 p-5">
-            <h2 id="bantuan-title" className="m-0 text-base font-bold">Butuh bantuan?</h2>
+            <h2 id="bantuan-title" className="m-0 text-base font-bold">{ready ? 'Mau ngobrol soal bacaanmu?' : 'Butuh bantuan?'}</h2>
             <p className="m-0 text-sm leading-[1.6]">
-              Salah isi data, atau sudah lewat 3 jam tapi belum ada kabar? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.
+              {ready
+                ? 'Ada bagian yang ingin kamu tanyakan atau bahas lebih lanjut? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.'
+                : 'Salah kirim data, atau sudah lewat 3 jam tapi belum ada kabar? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.'}
             </p>
-            <a href={waLink(waText)} className={`btn w-full ${ready ? 'btn-secondary' : 'btn-primary'}`}>
+            <a href={waLink(ready ? discussText(code) : helpText(code))} className={`btn w-full ${needsData ? 'btn-secondary' : 'btn-primary'}`}>
               <ChatIcon />
               Chat via WhatsApp
             </a>

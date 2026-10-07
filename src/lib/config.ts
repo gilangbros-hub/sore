@@ -25,8 +25,6 @@ export const HOURS = {
 
 /** How long a delivered reading stays viewable. Also stated on the privacy page. */
 export const RESULT_TTL_DAYS = 30;
-/** Photos are deleted this many hours after upload. */
-export const PHOTO_TTL_HOURS = 24;
 
 export const LYNK_URL: Record<CatalogItem, string> = {
   tarot: process.env.NEXT_PUBLIC_LYNK_URL_TAROT || '#bacaan',

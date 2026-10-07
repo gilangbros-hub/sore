@@ -39,7 +39,7 @@ const Tile = ({ children }: { children: ReactNode }) => (
 const STEPS = [
   ['Pilih bacaan', 'Tarot, garis tangan, aura, atau ketiganya.'],
   ['Bayar via Lynk.id', 'Pembayaran diproses di halaman Lynk.id.'],
-  ['Masukkan kode & isi data', 'Kode dikirim setelah bayar. Isi data singkat dan nomor WhatsApp-mu.'],
+  ['Masukkan kode & kirim data', 'Kode dikirim ke WhatsApp-mu. Data dan foto cukup dikirim lewat chat.'],
   ['Terima bacaan di WhatsApp', 'Dalam 1–3 jam. Link-nya bisa kamu buka lagi kapan saja.'],
 ];
 
@@ -75,7 +75,7 @@ export default function Home() {
             <p className="m-0 mt-1 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-sm text-mist-300">
               <span className="inline-flex items-center gap-1.5"><Check />Tanpa akun</span>
               <span className="inline-flex items-center gap-1.5"><Check />Boleh pakai nama panggilan</span>
-              <span className="inline-flex items-center gap-1.5"><Check />Foto dihapus dalam 24 jam</span>
+              <span className="inline-flex items-center gap-1.5"><Check />Dibaca langsung, bukan otomatis</span>
             </p>
           </div>
         </section>
@@ -100,7 +100,7 @@ export default function Home() {
               <ProductCard
                 item="palm"
                 title="Baca Garis Tangan"
-                desc="Unggah foto telapak tanganmu. Empat garis utama dibaca satu per satu."
+                desc="Kirim foto telapak tanganmu. Empat garis utama dibaca satu per satu."
                 cta="Pilih garis tangan"
                 art={
                   <Tile>
@@ -116,7 +116,7 @@ export default function Home() {
               <ProductCard
                 item="aura"
                 title="Baca Aura"
-                desc="Unggah foto wajahmu. Kenali warna aura dominan dan pesannya untukmu."
+                desc="Kirim foto wajahmu. Kenali warna aura dominan dan pesannya untukmu."
                 cta="Pilih aura"
                 art={
                   <Tile>
@@ -148,7 +148,7 @@ export default function Home() {
               </article>
             </div>
             <p className="m-0 text-sm leading-[1.6] text-mist-300">
-              Pembayaran diproses di Lynk.id. Setelah bayar, kamu dapat kode akses untuk mengirim data bacaanmu di sini.
+              Pembayaran diproses di Lynk.id. Setelah bayar, kode akses dikirim ke WhatsApp-mu untuk memantau progres dan membuka bacaanmu di sini.
             </p>
           </div>
         </section>
@@ -174,7 +174,7 @@ export default function Home() {
               ))}
             </ol>
             <Link href="/kode" className="inline-flex min-h-[44px] items-center gap-2 self-start font-semibold no-underline">
-              Sudah punya kode? Kirim data atau buka bacaanmu
+              Sudah punya kode? Cek progres atau buka bacaanmu
               <ArrowRight />
             </Link>
           </div>

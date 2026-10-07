@@ -1,66 +1,85 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/supabase';
-import { issueCodes } from '@/lib/orders';
-import { parseLynk } from '@/lib/lynk';
-import { safeEqual } from '@/lib/secrets';
+import { assignCode, type Order } from '@/lib/orders';
+import { mapProduct, parseAnswers, verifySignature, type LynkPayload } from '@/lib/lynk';
+import { normalizeWa } from '@/lib/codes';
 import type { ProductKind } from '@/lib/config';
 
-// Lynk.id → Settings → Integrations → Webhook URL:
-//   https://<site>/api/lynk/webhook?key=<LYNK_WEBHOOK_SECRET>
+// Lynk.id → Settings → Integrations → Webhook URL: https://<site>/api/lynk/webhook
+// Then copy the merchant key Lynk shows into LYNK_MERCHANT_KEY.
 
-async function log(status: string, detail: string, payload: unknown, ref?: string | null, email?: string | null) {
-  await db().from('webhook_events').insert({ status, detail, payload: payload as object, lynk_ref: ref ?? null, email: email ?? null });
+async function log(status: string, detail: string, payload: unknown, ref?: string | null) {
+  await db().from('webhook_events').insert({ status, detail, payload: payload as object, lynk_ref: ref ?? null });
 }
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.LYNK_WEBHOOK_SECRET || '';
-  const key = req.nextUrl.searchParams.get('key') || req.headers.get('x-webhook-key') || '';
-  if (!secret || !safeEqual(key, secret)) return NextResponse.json({ ok: false }, { status: 401 });
-
+  const merchantKey = process.env.LYNK_MERCHANT_KEY || '';
   const raw = await req.text();
-  let payload: unknown;
+  let payload: LynkPayload;
   try {
     payload = JSON.parse(raw);
   } catch {
-    payload = Object.fromEntries(new URLSearchParams(raw));
+    return NextResponse.json({ ok: false }, { status: 400 });
   }
 
+  const signature = req.headers.get('x-lynk-signature') || '';
+  if (!merchantKey || !verifySignature(payload, signature, merchantKey)) {
+    // Logged without the payload so a forged request cannot fill the table with junk.
+    await log('rejected', 'Signature tidak valid', null).catch(() => {});
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
+
+  const md = payload.data?.message_data;
+  const ref = md?.refId ?? null;
   try {
-    const p = parseLynk(payload);
-    if (p.failed) {
-      await log('ignored', 'Status pembayaran bukan sukses', payload, p.ref, p.email);
+    if (payload.event !== 'payment.received' || payload.data?.message_action !== 'SUCCESS') {
+      await log('ignored', `Event ${payload.event} / ${payload.data?.message_action}`, payload, ref);
       return NextResponse.json({ ok: true });
     }
-    const mapped = p.items.filter((i) => i.product);
-    if (!p.ref || !p.email || !mapped.length) {
-      const missing = [!p.ref && 'nomor pesanan', !p.email && 'email', !mapped.length && 'produk yang dikenali'].filter(Boolean).join(', ');
-      await log('unmatched', `Tidak ketemu: ${missing}`, payload, p.ref, p.email);
+    if (!ref) {
+      await log('unmatched', 'refId kosong', payload, ref);
       return NextResponse.json({ ok: true });
     }
 
-    const rows: Parameters<typeof issueCodes>[0] = [];
-    p.items.forEach((item, idx) => {
-      if (!item.product) return;
-      const products: ProductKind[] = item.product === 'bundle' ? ['tarot', 'palm', 'aura'] : [item.product];
-      for (let u = 0; u < item.qty; u++) {
+    const { count: existing } = await db().from('orders').select('id', { count: 'exact', head: true }).eq('lynk_ref', ref);
+    const customer = md?.customer ?? {};
+    const phone = normalizeWa(customer.phone ?? '');
+    const assigned: Order[] = [];
+    const unknown: string[] = [];
+
+    for (const [idx, item] of (md?.items ?? []).entries()) {
+      const title = item.title ?? '';
+      const kind = mapProduct(title);
+      if (!kind) {
+        unknown.push(title || '(tanpa judul)');
+        continue;
+      }
+      const products: ProductKind[] = kind === 'bundle' ? ['tarot', 'palm', 'aura'] : [kind];
+      const qty = Math.max(1, Math.min(10, Number(item.qty) || 1));
+      for (let u = 0; u < qty; u++) {
         for (const product of products) {
-          rows.push({ product, source: 'lynk', buyer_email: p.email, lynk_ref: p.ref, lynk_key: `${p.ref}:${idx}:${u}:${product}`, note: item.title });
+          assigned.push(
+            await assignCode({
+              product, source: 'lynk', lynkKey: `${ref}:${idx}:${u}:${product}`, lynkRef: ref,
+              name: customer.name ?? null, email: customer.email ?? null, phone,
+              answers: parseAnswers(item.questions), note: title,
+            }),
+          );
         }
       }
-    });
+    }
 
-    const { created, skipped } = await issueCodes(rows);
-    const unknown = p.items.filter((i) => !i.product).map((i) => i.title);
     const detail = [
-      created.length && `${created.length} kode dibuat (${created.map((o) => o.code).join(', ')})`,
-      skipped && `${skipped} sudah ada`,
+      assigned.length && `Kode: ${assigned.map((o) => o.code).join(', ')}`,
+      !phone && 'nomor HP pembeli kosong atau tidak valid',
       unknown.length && `produk tidak dikenali: ${unknown.join(', ')}`,
     ].filter(Boolean).join(' · ');
-    await log(created.length ? 'issued' : 'duplicate', detail, payload, p.ref, p.email);
-    return NextResponse.json({ ok: true, created: created.length });
+    const status = !assigned.length ? 'unmatched' : existing ? 'duplicate' : 'assigned';
+    await log(status, detail || 'Tidak ada item', payload, ref);
+    return NextResponse.json({ ok: true });
   } catch (e) {
-    await log('error', (e as Error).message?.slice(0, 500) ?? 'error', payload).catch(() => {});
-    // 500 so Lynk retries; the lynk_key makes retries safe.
+    await log('error', (e as Error).message?.slice(0, 500) ?? 'error', payload, ref).catch(() => {});
+    // 500 so Lynk retries; lynk_key makes retries safe.
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

@@ -7,7 +7,7 @@ import { ShareSection } from './ShareSection';
 import { TAROT_BY_ID, TAROT_POSITIONS } from '@/lib/tarot';
 import type { TarotResult as T } from '@/lib/results';
 
-export function TarotResult({ r, nickname, focus, deliveredAt, token }: { r: T; nickname: string; focus: string | null; deliveredAt: string; token: string | null }) {
+export function TarotResult({ r, nickname, focus, deliveredAt, token, discussHref }: { r: T; nickname: string; focus: string | null; deliveredAt: string; token: string | null; discussHref: string | null }) {
   const [open, setOpen] = useState([false, false, false]);
   const all = open.every(Boolean);
 
@@ -83,7 +83,7 @@ export function TarotResult({ r, nickname, focus, deliveredAt, token }: { r: T; 
         )}
       </div>
 
-      <ShareSection
+      <ShareSection discussHref={discussHref}
         kind="tarot"
         token={token}
         blurb="Kartu Story berisi tiga kartumu dan satu kalimat pilihan. Tanpa nama, tanpa isi bacaan lengkap."

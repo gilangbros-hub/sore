@@ -11,7 +11,7 @@ const BADGE = [
 ];
 const SWATCH = ['h-[3px] bg-amber-400', 'h-[3px] bg-gold-300', 'h-[3px] bg-ivory-50', 'h-0 border-t-[3px] border-dashed border-ivory-50'];
 
-export function PalmResult({ r, nickname, hand, deliveredAt, token }: { r: P; nickname: string; hand: string | null; deliveredAt: string; token: string | null }) {
+export function PalmResult({ r, nickname, hand, deliveredAt, token, discussHref }: { r: P; nickname: string; hand: string | null; deliveredAt: string; token: string | null; discussHref: string | null }) {
   return (
     <div className="mx-auto flex max-w-[760px] flex-col gap-8">
       <div className="flex flex-col items-center gap-2.5 text-center">
@@ -51,7 +51,7 @@ export function PalmResult({ r, nickname, hand, deliveredAt, token }: { r: P; ni
           <p className="quote">{r.question}</p>
         </section>
 
-        <ShareSection kind="palm" token={token} blurb="Kartu Story berisi ilustrasi garis tanganmu dan satu kalimat pilihan. Tanpa foto, tanpa isi bacaan lengkap." />
+        <ShareSection discussHref={discussHref} kind="palm" token={token} blurb="Kartu Story berisi ilustrasi garis tanganmu dan satu kalimat pilihan. Tanpa foto, tanpa isi bacaan lengkap." />
       </div>
     </div>
   );

@@ -2,11 +2,11 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { publishResult, saveDraft } from '../../actions';
+import { markDataReceived, publishResult, saveDraft, type ReadingMeta } from '../../actions';
 import { MAJOR_ARCANA, TAROT_POSITIONS } from '@/lib/tarot';
 import { AURA_COLOURS } from '@/lib/aura';
 import { PALM_LINES, riskyWords } from '@/lib/results';
-import type { ProductKind } from '@/lib/config';
+import { FOCUS_OPTIONS, type ProductKind } from '@/lib/config';
 
 // The form keeps everything as plain strings; paragraphs are separated by a blank line,
 // list items by a new line. It converts to the stored JSON shape on save.
@@ -71,9 +71,10 @@ function fromForm(kind: ProductKind, f: Form) {
 const label = 'flex flex-col gap-1.5 text-sm font-semibold';
 const hint = 'font-normal text-mist-300';
 
-export function ResultForm({ code, kind, initial, focus }: { code: string; kind: ProductKind; initial: unknown; focus: string | null }) {
+export function ResultForm({ code, kind, status, initial, meta: initialMeta }: { code: string; kind: ProductKind; status: string; initial: unknown; meta: ReadingMeta }) {
   const router = useRouter();
   const [f, setF] = useState<Form>(() => toForm(kind, initial));
+  const [meta, setMeta] = useState<ReadingMeta>(initialMeta);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, start] = useTransition();
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -92,7 +93,7 @@ export function ResultForm({ code, kind, initial, focus }: { code: string; kind:
   function save(after?: 'preview') {
     const win = after === 'preview' ? window.open('about:blank', '_blank') : null;
     start(async () => {
-      const r = await saveDraft(code, fromForm(kind, f));
+      const r = await saveDraft(code, meta, fromForm(kind, f));
       setMsg(r.ok ? { ok: true, text: 'Draf tersimpan.' } : { ok: false, text: r.error ?? 'Gagal menyimpan.' });
       if (win) {
         if (r.ok) win.location.href = `/admin/o/${code}/preview`;
@@ -104,7 +105,7 @@ export function ResultForm({ code, kind, initial, focus }: { code: string; kind:
   function publish() {
     if (risky.length && !confirm(`Ada kata yang perlu dicek: ${risky.join(', ')}. Bacaan tidak boleh meramal kematian, penyakit, kehamilan, atau angka uang. Tetap terbitkan?`)) return;
     start(async () => {
-      const r = await publishResult(code, fromForm(kind, f));
+      const r = await publishResult(code, meta, fromForm(kind, f));
       setMsg(r.ok ? { ok: true, text: 'Terbit. Sekarang kirim link-nya lewat WhatsApp di bawah.' } : { ok: false, text: r.error ?? 'Gagal menerbitkan.' });
       if (r.ok) router.refresh();
     });
@@ -112,9 +113,48 @@ export function ResultForm({ code, kind, initial, focus }: { code: string; kind:
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="grid gap-3 rounded-tile bg-night-900 p-4 sm:grid-cols-2">
+        <p className="m-0 text-sm text-mist-300 sm:col-span-2">Isi dari data yang dikirim pembeli lewat WhatsApp.</p>
+        <label className={label}>
+          Nama panggilan <span className={hint}>· muncul di judul bacaan</span>
+          <input className="field font-normal" maxLength={40} value={meta.nickname} onChange={(e) => setMeta((m) => ({ ...m, nickname: e.target.value }))} />
+        </label>
+        {kind === 'tarot' && (
+          <label className={label}>
+            Fokus
+            <select className="field" value={meta.focus} onChange={(e) => setMeta((m) => ({ ...m, focus: e.target.value as ReadingMeta['focus'] }))}>
+              <option value="">Pilih…</option>
+              {FOCUS_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </label>
+        )}
+        {kind === 'palm' && (
+          <label className={label}>
+            Tangan yang difoto
+            <select className="field" value={meta.hand} onChange={(e) => setMeta((m) => ({ ...m, hand: e.target.value as ReadingMeta['hand'] }))}>
+              <option value="">Pilih…</option>
+              <option value="kanan">Kanan</option>
+              <option value="kiri">Kiri</option>
+            </select>
+          </label>
+        )}
+        {status === 'sold' && (
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <button
+              type="button"
+              className="btn btn-secondary self-start"
+              disabled={pending}
+              onClick={() => start(async () => { await markDataReceived(code, meta); router.refresh(); })}
+            >
+              Data sudah diterima, mulai baca
+            </button>
+            <span className="text-xs text-mist-300">Halaman progres pembeli pindah ke “Bacaan sedang disiapkan”.</span>
+          </div>
+        )}
+      </div>
+
       {kind === 'tarot' && (
         <>
-          {focus && <p className="m-0 text-sm text-mist-300">Fokus pembeli: <strong className="text-ivory-50">{focus}</strong></p>}
           {[0, 1, 2].map((i) => (
             <fieldset key={i} className="m-0 flex flex-col gap-3 rounded-tile border-0 bg-night-900 p-4">
               <legend className="float-left mb-1 w-full p-0 text-sm font-bold text-gold-300">{i + 1} · {TAROT_POSITIONS[i]}</legend>

@@ -10,7 +10,7 @@ const OTHER: Record<ProductKind, string> = {
   aura: 'kartu tarot dan garis tanganmu',
 };
 
-export function ShareSection({ kind, token, blurb, preview }: { kind: ProductKind; token: string | null; blurb: string; preview?: ReactNode }) {
+export function ShareSection({ kind, token, blurb, preview, discussHref }: { kind: ProductKind; token: string | null; blurb: string; preview?: ReactNode; discussHref: string | null }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
@@ -53,6 +53,17 @@ export function ShareSection({ kind, token, blurb, preview }: { kind: ProductKin
   }
 
   return (
+    <>
+    {discussHref && (
+      <section aria-labelledby="ngobrol-title" className="flex flex-col gap-3 rounded-card bg-night-700 p-5">
+        <h2 id="ngobrol-title" className="m-0 text-base font-bold">Mau ngobrol soal bacaanmu?</h2>
+        <p className="m-0 text-sm leading-[1.6]">Ada bagian yang ingin kamu tanyakan atau bahas lebih dalam? Chat langsung di WhatsApp, kodemu sudah otomatis tertulis di pesan.</p>
+        <a href={discussHref} className="btn btn-primary w-full">
+          <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5a7.5 7.5 0 0 0-6.4 11.4L2.5 17.5l3.7-1A7.5 7.5 0 1 0 10 2.5z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>
+          Chat via WhatsApp
+        </a>
+      </section>
+    )}
     <section aria-labelledby="bagikan-title" className="flex flex-col gap-3.5 border-t border-ivory-50/10 pt-7">
       <h2 id="bagikan-title" className="m-0 text-base font-bold">Simpan momen ini</h2>
       {preview ? (
@@ -79,5 +90,6 @@ export function ShareSection({ kind, token, blurb, preview }: { kind: ProductKin
         Penasaran sama {OTHER[kind]} juga? <Link href="/#bacaan" className="font-semibold">Lihat pilihan bacaan</Link>
       </p>
     </section>
+    </>
   );
 }

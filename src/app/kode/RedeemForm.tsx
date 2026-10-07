@@ -1,12 +1,13 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { lookupCode, type LookupResult } from './actions';
 import { MoonIcon } from '@/components/Chrome';
 import { waLink } from '@/lib/config';
 
 export function RedeemForm({ initial = '' }: { initial?: string }) {
+  const router = useRouter();
   const [code, setCode] = useState(initial);
   const [res, setRes] = useState<LookupResult | null>(null);
   const [pending, start] = useTransition();
@@ -19,11 +20,14 @@ export function RedeemForm({ initial = '' }: { initial?: string }) {
       onSubmit={(e) => {
         e.preventDefault();
         start(async () => {
+          let r: LookupResult;
           try {
-            setRes(await lookupCode(code));
+            r = await lookupCode(code);
           } catch {
-            setRes({ state: 'invalid' });
+            r = { state: 'invalid' };
           }
+          if (r.state === 'ok') router.push(`/status/${r.code}`);
+          else setRes(r);
         });
       }}
     >
@@ -65,32 +69,6 @@ export function RedeemForm({ initial = '' }: { initial?: string }) {
             </div>
           </div>
         )}
-        {res?.state === 'pending' && (
-          <div className="flex items-start gap-3 rounded-field bg-gold-300/10 px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(227,197,132,.35)]">
-            <MoonIcon />
-            <div className="flex flex-col gap-1.5">
-              <p className="m-0 text-[15px] font-semibold text-gold-300">Bacaanmu sedang disiapkan</p>
-              <p className="m-0 text-sm leading-[1.6] text-ivory-50">
-                Datamu sudah kami terima {res.at}. Link bacaan akan dikirim ke WhatsApp-mu dalam 1–3 jam.
-              </p>
-              <Link href={`/status/${res.code}`} className="flink text-sm font-semibold">Lihat status pesanan</Link>
-            </div>
-          </div>
-        )}
-        {res?.state === 'ready' && (
-          <div className="flex items-start gap-3 rounded-field bg-amber-400/[.12] px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(240,176,103,.45)]">
-            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 flex-none">
-              <path d="M10 1.5l2 6.5 6.5 2-6.5 2-2 6.5-2-6.5L1.5 10 8 8z" fill="#F0B067" />
-            </svg>
-            <div className="flex flex-col gap-1.5">
-              <p className="m-0 text-[15px] font-semibold text-amber-400">Bacaanmu sudah siap</p>
-              <p className="m-0 text-sm leading-[1.6] text-ivory-50">
-                Dikirim {res.at}. Kamu bisa membukanya lagi sesering yang kamu mau.
-              </p>
-              <Link href={`/b/${res.token}`} className="flink text-sm font-semibold">Lihat bacaanku</Link>
-            </div>
-          </div>
-        )}
         {res?.state === 'expired' && (
           <div className="flex items-start gap-3 rounded-field bg-gold-300/10 px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(227,197,132,.35)]">
             <MoonIcon />
@@ -108,9 +86,6 @@ export function RedeemForm({ initial = '' }: { initial?: string }) {
       <button type="submit" className="btn btn-primary w-full" disabled={pending}>
         {pending ? 'Mengecek…' : 'Lanjutkan'}
       </button>
-      {res?.state === 'ok' && (
-        <Link href={`/isi/${res.code}`} className="btn btn-secondary w-full">Kode cocok, lanjut isi data</Link>
-      )}
     </form>
   );
 }

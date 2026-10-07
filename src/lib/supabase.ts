@@ -1,8 +1,6 @@
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-export const PHOTO_BUCKET = 'photos';
-
 let client: SupabaseClient | null = null;
 
 /** Server-only client with the secret key. RLS is on with no policies, so this is the only way in. */

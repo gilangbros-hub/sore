@@ -1,48 +1,45 @@
 'use client';
 
-import { useTransition } from 'react';
-import { deletePhotoNow, markWaSent, reopenIntake } from '../../actions';
+import { useState, useTransition } from 'react';
+import { markCodeSent, markWaSent, updateBuyerPhone } from '../../actions';
 
-export function OrderActions({ code, status, hasPhoto, waHref, waSent }: { code: string; status: string; hasPhoto?: boolean; waHref?: string; waSent?: boolean }) {
-  const [pending, start] = useTransition();
-
-  if (waHref) {
-    return (
-      <div className="flex flex-wrap gap-3">
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-primary"
-          onClick={() => start(() => markWaSent(code))}
-        >
-          {waSent ? 'Kirim ulang via WhatsApp' : 'Buka WhatsApp & kirim'}
-        </a>
-        {waSent && <span className="self-center text-sm text-gold-300">Sudah ditandai terkirim</span>}
-      </div>
-    );
-  }
-
+/** Opens WhatsApp with the prefilled message and records that it was sent. */
+export function WaSendButton({ code, href, kind, sent }: { code: string; href: string; kind: 'code' | 'result'; sent: boolean }) {
+  const [, start] = useTransition();
   return (
-    <div className="flex flex-wrap gap-3">
-      {status === 'submitted' && (
-        <button
-          className="btn btn-secondary btn-sm"
-          disabled={pending}
-          onClick={() => confirm('Buka lagi form isi data untuk kode ini? Foto yang lama akan dihapus.') && start(() => reopenIntake(code))}
-        >
-          Minta isi ulang data
-        </button>
-      )}
-      {hasPhoto && (
-        <button
-          className="btn btn-secondary btn-sm"
-          disabled={pending}
-          onClick={() => confirm('Hapus foto sekarang? Tidak bisa dibatalkan.') && start(() => deletePhotoNow(code))}
-        >
-          Hapus foto sekarang
-        </button>
-      )}
+    <div className="flex flex-wrap items-center gap-3">
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={`btn ${sent ? 'btn-secondary' : 'btn-primary'}`}
+        onClick={() => start(() => (kind === 'code' ? markCodeSent(code) : markWaSent(code)))}
+      >
+        {sent ? 'Kirim ulang via WhatsApp' : kind === 'code' ? 'Buka WhatsApp & kirim kode' : 'Buka WhatsApp & kirim link'}
+      </a>
+      {sent && <span className="text-sm text-gold-300">Sudah ditandai terkirim</span>}
     </div>
+  );
+}
+
+export function PhoneForm({ code, current }: { code: string; current: string | null }) {
+  const [value, setValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <form
+      className="flex flex-col gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        start(async () => setError(await updateBuyerPhone(code, value)));
+      }}
+    >
+      <label htmlFor="phone" className="text-sm font-semibold">{current ? 'Ganti nomor WhatsApp pembeli' : 'Nomor WhatsApp pembeli belum ada'}</label>
+      <div className="flex gap-2">
+        <input id="phone" className="field" inputMode="tel" placeholder="0812…" value={value} onChange={(e) => setValue(e.target.value)} />
+        <button className="btn btn-secondary" disabled={pending || !value}>Simpan</button>
+      </div>
+      {error && <p className="m-0 text-sm font-semibold text-coral-300">{error}</p>}
+    </form>
   );
 }

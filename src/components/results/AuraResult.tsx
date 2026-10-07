@@ -17,7 +17,7 @@ function Swatch({ label, id }: { label: string; id: string }) {
   );
 }
 
-export function AuraResult({ r, nickname, deliveredAt, token }: { r: A; nickname: string; deliveredAt: string; token: string | null }) {
+export function AuraResult({ r, nickname, deliveredAt, token, discussHref }: { r: A; nickname: string; deliveredAt: string; token: string | null; discussHref: string | null }) {
   return (
     <div className="mx-auto flex max-w-[640px] flex-col gap-8">
       <div className="flex flex-col items-center gap-2.5 text-center">
@@ -69,7 +69,7 @@ export function AuraResult({ r, nickname, deliveredAt, token }: { r: A; nickname
         <p className="text-balance m-0 font-serif text-[32px] font-medium italic leading-[1.2]">“{r.affirmation}”</p>
       </section>
 
-      <ShareSection kind="aura" token={token} blurb="Kartu Story berisi warna auramu dan afirmasimu. Tanpa foto, tanpa isi bacaan lengkap." />
+      <ShareSection discussHref={discussHref} kind="aura" token={token} blurb="Kartu Story berisi warna auramu dan afirmasimu. Tanpa foto, tanpa isi bacaan lengkap." />
     </div>
   );
 }

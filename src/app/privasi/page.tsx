@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Page } from '@/components/Chrome';
-import { PHOTO_TTL_HOURS, RESULT_TTL_DAYS, waLink } from '@/lib/config';
+import { RESULT_TTL_DAYS, waLink } from '@/lib/config';
 
 export const metadata: Metadata = { title: 'Kebijakan privasi' };
 
-// Draft. Have it checked before launch, especially the processing location and the AI statement.
+// Draft. Have it checked before launch. The photo promises here are manual: keep them.
 const UPDATED = '7 Oktober 2026';
 
 function S({ title, children }: { title: string; children: ReactNode }) {
@@ -30,28 +30,30 @@ export default function PrivasiPage() {
           </div>
 
           <p className="m-0 text-[17px] leading-[1.7]">
-            Singkatnya: kami minta data sesedikit mungkin, memakainya hanya untuk membuat bacaanmu, dan menghapus fotomu otomatis setelah 24 jam.
+            Singkatnya: kami minta data sesedikit mungkin, memakainya hanya untuk membuat bacaanmu, dan menghapus fotomu setelah bacaan dikirim.
           </p>
 
           <S title="Data yang kami terima">
             <P>
-              Nama panggilan, nomor WhatsApp, fokus dan pertanyaan tarot (kalau kamu isi), foto telapak tangan atau wajah (untuk bacaan garis tangan dan aura), dan kode akses.
-              Dari Lynk.id kami menerima email dan nomor pesanan pembelianmu supaya kode akses bisa kamu ambil sendiri. Data pembayaran diproses Lynk.id, bukan oleh Ruang Senja.
+              Dari Lynk.id, setelah pembayaranmu berhasil: nama, email, nomor HP, dan nomor pesanan. Ini kami pakai untuk mengirim kode akses ke WhatsApp-mu.
+              Data pembayaran diproses Lynk.id, bukan oleh Ruang Senja.
+            </P>
+            <P>
+              Lewat WhatsApp, dari kamu: nama panggilan, fokus dan pertanyaan tarot (kalau ada), serta foto telapak tangan atau wajah untuk bacaan garis tangan dan aura.
             </P>
           </S>
 
           <S title="Cara fotomu diproses">
             <P>
-              Fotomu diunggah langsung ke penyimpanan privat (Supabase Storage), tidak bisa dibuka publik, dan hanya bisa dilihat pengelola Ruang Senja lewat tautan sementara saat menyusun bacaanmu.
-              Sebelum diunggah, browser-mu memperkecil foto dan membuang data lokasi (EXIF). Fotomu tidak dipakai untuk melatih model AI dan tidak pernah muncul di kartu Story.
+              Fotomu hanya dilihat oleh pembaca Ruang Senja yang menyusun bacaanmu, dan dipakai hanya untuk bacaan itu. Foto tidak diunggah ke website, tidak dibagikan ke pihak lain,
+              dan tidak pernah muncul di kartu Story. Setelah bacaanmu dikirim, foto kami hapus dari chat.
             </P>
-            <P>Situs dijalankan di Vercel dan data disimpan di server Supabase di luar Indonesia (wilayah Asia Tenggara).</P>
           </S>
 
           <S title="Berapa lama disimpan">
             <P>
-              Foto dihapus otomatis setelah {PHOTO_TTL_HOURS} jam. Bacaanmu bisa dibuka selama {RESULT_TTL_DAYS} hari setelah dikirim. Setelah itu nama panggilan, nomor WhatsApp, pertanyaan, email, dan isi bacaan dihapus;
-              yang tersisa hanya kode akses dan jenis bacaan untuk catatan transaksi.
+              Bacaanmu bisa dibuka selama {RESULT_TTL_DAYS} hari setelah dikirim. Setelah itu nama, email, nomor HP, dan isi bacaan dihapus dari sistem kami;
+              yang tersisa hanya kode akses dan jenis bacaan untuk catatan transaksi. Data disimpan di Supabase (server Asia Tenggara) dan situs dijalankan di Vercel.
             </P>
           </S>
 

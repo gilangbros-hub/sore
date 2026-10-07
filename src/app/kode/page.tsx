@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Page } from '@/components/Chrome';
 import { RedeemForm } from './RedeemForm';
 import { waLink } from '@/lib/config';
+import { NO_CODE_TEXT } from '@/lib/wa';
 
 export const metadata: Metadata = { title: 'Buka bacaanmu' };
 
@@ -26,7 +27,7 @@ export default async function KodePage({ searchParams }: { searchParams: Promise
             </svg>
             <h1 className="relative m-0 font-serif text-4xl font-semibold leading-[1.1]">Buka bacaanmu</h1>
             <p className="text-pretty relative m-0 text-base leading-[1.6] text-mist-300">
-              Kode akses dikirim setelah pembayaranmu di Lynk.id berhasil. Pakai kode yang sama untuk cek status atau membuka bacaanmu lagi.
+              Kode akses dikirim ke WhatsApp-mu setelah pembayaranmu di Lynk.id berhasil. Pakai kode yang sama untuk cek progres atau membuka bacaanmu lagi.
             </p>
           </div>
 
@@ -36,8 +37,7 @@ export default async function KodePage({ searchParams }: { searchParams: Promise
             <p className="m-0 text-[15px] font-semibold">Belum punya kode?</p>
             <Link href="/#bacaan" className="flink text-[15px] font-semibold">Pilih bacaan dulu di beranda</Link>
             <p className="m-0 mt-3 text-[15px] font-semibold">Sudah bayar tapi kode belum masuk?</p>
-            <Link href="/klaim" className="flink text-[15px] font-semibold">Ambil kode pakai email Lynk.id-mu</Link>
-            <a href={waLink('Halo Ruang Senja, aku sudah bayar tapi belum dapat kode akses.')} className="flink text-[15px] font-semibold">
+            <a href={waLink(NO_CODE_TEXT)} className="flink text-[15px] font-semibold">
               Chat kami di WhatsApp
             </a>
           </div>

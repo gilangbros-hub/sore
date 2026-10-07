@@ -1,29 +1,20 @@
 'use server';
 
 import { CODE_RE, normalizeCode } from '@/lib/codes';
+import { db } from '@/lib/supabase';
 import { getOrderByCode } from '@/lib/orders';
-import { wibStamp } from '@/lib/format';
 
-export type LookupResult =
-  | { state: 'invalid' }
-  | { state: 'ok'; code: string }
-  | { state: 'pending'; code: string; at: string }
-  | { state: 'ready'; at: string; token: string }
-  | { state: 'expired' };
+export type LookupResult = { state: 'invalid' } | { state: 'expired' } | { state: 'ok'; code: string };
 
 export async function lookupCode(raw: string): Promise<LookupResult> {
   const code = normalizeCode(String(raw ?? ''));
   if (!CODE_RE.test(code)) return { state: 'invalid' };
   const order = await getOrderByCode(code);
   if (!order) return { state: 'invalid' };
-  switch (order.status) {
-    case 'unused':
-      return { state: 'ok', code };
-    case 'submitted':
-      return { state: 'pending', code, at: wibStamp(order.submitted_at!) };
-    case 'ready':
-      return { state: 'ready', at: wibStamp(order.delivered_at!), token: order.result_token! };
-    default:
-      return { state: 'expired' };
+  if (order.status === 'expired') return { state: 'expired' };
+  if (order.status === 'stock') {
+    // A stock code you handed out by hand: activate it on first use.
+    await db().from('orders').update({ status: 'sold', source: 'manual', sold_at: new Date().toISOString() }).eq('id', order.id).eq('status', 'stock');
   }
+  return { state: 'ok', code };
 }

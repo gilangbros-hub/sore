@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowRight, Page } from '@/components/Chrome';
 import { HOURS, RESULT_TTL_DAYS, waLink } from '@/lib/config';
+import { NO_CODE_TEXT } from '@/lib/wa';
 
 export const metadata: Metadata = { title: 'FAQ' };
 
@@ -34,20 +35,23 @@ export default function FaqPage() {
             <QA q="Apakah ini akurat?" open>
               <p className="m-0">Bacaan ini dibuat untuk hiburan dan bahan refleksi. Pakai sebagai cermin, bukan sebagai keputusan.</p>
             </QA>
+            <QA q="Siapa yang membaca?">
+              <p className="m-0">Setiap bacaan disusun langsung oleh pembaca Ruang Senja berdasarkan data dan foto yang kamu kirim, satu per satu.</p>
+            </QA>
             <QA q="Berapa lama bacaanku jadi?">
-              <p className="m-0">Biasanya 1–3 jam setelah datamu terkirim. Link bacaan dikirim ke WhatsApp-mu, dan bisa kamu buka berkali-kali selama {RESULT_TTL_DAYS} hari.</p>
+              <p className="m-0">Biasanya 1–3 jam setelah datamu kami terima di WhatsApp. Link bacaan dikirim ke WhatsApp-mu, dan bisa kamu buka berkali-kali selama {RESULT_TTL_DAYS} hari.</p>
               <p className="m-0">
-                Pesanan yang masuk setelah {HOURS.close} WIB dikirim mulai {HOURS.open} WIB keesokan harinya. Cek status kapan saja lewat <Link href="/kode">Punya kode?</Link>
+                Data yang masuk setelah {HOURS.close} WIB dibaca mulai {HOURS.open} WIB keesokan harinya. Cek progres kapan saja lewat <Link href="/kode">Punya kode?</Link>
               </p>
             </QA>
             <QA q="Bagaimana foto saya dipakai?">
-              <p className="m-0">Fotomu hanya dipakai untuk membuat bacaan ini dan dihapus otomatis setelah 24 jam. Foto tidak pernah muncul di kartu Story.</p>
+              <p className="m-0">Foto telapak tangan atau wajah kamu kirim lewat WhatsApp, hanya dipakai untuk membuat bacaanmu, dan kami hapus setelah bacaan dikirim. Foto tidak pernah muncul di website atau di kartu Story.</p>
               <p className="m-0">Penjelasan lengkapnya ada di halaman <Link href="/privasi">Privasi</Link>.</p>
             </QA>
-            <QA q="Kode akses hilang?">
+            <QA q="Belum dapat kode atau kodenya hilang?">
               <p className="m-0">
-                Masukkan email yang kamu pakai di Lynk.id di halaman <Link href="/klaim">ambil kode</Link>, kodemu akan muncul lagi. Kalau tetap tidak ketemu,{' '}
-                <a href={waLink('Halo Ruang Senja, kode aksesku hilang.')}>chat kami di WhatsApp</a> dengan bukti pembayaran, nanti kodenya kami kirim ulang. Kalau bacaanmu sudah jadi, link-nya juga ada di chat WhatsApp dari kami.
+                Kode dikirim ke WhatsApp-mu setelah pembayaran di Lynk.id berhasil. Belum masuk atau hilang?{' '}
+                <a href={waLink(NO_CODE_TEXT)}>Chat kami di WhatsApp</a> dengan nama atau email yang kamu pakai di Lynk.id, nanti kodenya kami kirim ulang.
               </p>
             </QA>
             <QA q="Bisa refund?">

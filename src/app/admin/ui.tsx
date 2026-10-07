@@ -30,14 +30,15 @@ export function Panel({ title, children, aside }: { title: string; children: Rea
 }
 
 export const STATUS_BADGE: Record<string, string> = {
-  unused: 'bg-night-700 text-mist-300',
-  submitted: 'bg-amber-400 text-night-950',
+  stock: 'bg-night-700 text-mist-300',
+  sold: 'bg-coral-300/20 text-coral-300',
+  reading: 'bg-amber-400 text-night-950',
   ready: 'bg-gold-300/20 text-gold-300',
   expired: 'bg-night-700 text-mist-400',
 };
 
 export const STATUS_TEXT: Record<string, string> = {
-  unused: 'Belum diisi', submitted: 'Perlu dibaca', ready: 'Terkirim', expired: 'Kedaluwarsa',
+  stock: 'Stok', sold: 'Menunggu data', reading: 'Perlu dibaca', ready: 'Terbit', expired: 'Kedaluwarsa',
 };
 
 export function Badge({ status }: { status: string }) {
