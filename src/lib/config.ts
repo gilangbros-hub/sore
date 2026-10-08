@@ -5,10 +5,10 @@ export type ProductKind = 'tarot' | 'palm' | 'aura';
 export type CatalogItem = ProductKind | 'bundle';
 
 export const PRICES: Record<CatalogItem, number> = {
-  tarot: 35000,
+  tarot: 39000,
   palm: 39000,
-  aura: 29000,
-  bundle: 79000,
+  aura: 35000,
+  bundle: 99000,
 };
 
 export const PRODUCT_NAME: Record<ProductKind, string> = {
@@ -30,12 +30,12 @@ export const LYNK_URL: Record<CatalogItem, string> = {
   // Hardcoded fallback until the env vars are set in Vercel. The env var still wins when present.
   tarot: process.env.NEXT_PUBLIC_LYNK_URL_TAROT || 'https://lynk.id/rekan_ba/ymqq5wndw845/checkout',
   palm: process.env.NEXT_PUBLIC_LYNK_URL_PALM || 'https://lynk.id/rekan_ba/mvww1lexdv5o/checkout',
-  aura: process.env.NEXT_PUBLIC_LYNK_URL_AURA || '#bacaan',
-  bundle: process.env.NEXT_PUBLIC_LYNK_URL_BUNDLE || '#bacaan',
+  aura: process.env.NEXT_PUBLIC_LYNK_URL_AURA || 'https://lynk.id/rekan_ba/p5880n5jjdpl/checkout',
+  bundle: process.env.NEXT_PUBLIC_LYNK_URL_BUNDLE || 'https://lynk.id/rekan_ba/om88p9m6263r/checkout',
 };
 
 /** wa.me number without "+", e.g. 6281234567890. */
-export const WA_NUMBER = (process.env.NEXT_PUBLIC_WA_NUMBER || '').replace(/\D/g, '');
+export const WA_NUMBER = (process.env.NEXT_PUBLIC_WA_NUMBER || '628179142911').replace(/\D/g, '');
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
