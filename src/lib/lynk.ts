@@ -62,7 +62,8 @@ export function mapProduct(title: string): CatalogItem | null {
   } catch {
     /* ignore a malformed map */
   }
-  if (/(paket|bundle|lengkap)/.test(t)) return 'bundle';
+  // Not "lengkap" alone: the tarot product is titled "Tarot 5 Kartu: Baca Lengkap via WhatsApp".
+  if (/(paket|bundle)/.test(t)) return 'bundle';
   if (/tarot/.test(t)) return 'tarot';
   if (/(garis tangan|telapak|palm)/.test(t)) return 'palm';
   if (/aura/.test(t)) return 'aura';

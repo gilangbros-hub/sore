@@ -22,7 +22,7 @@ Situs bacaan tarot, garis tangan, dan aura. Next.js 16 (App Router) + Tailwind, 
 ### 2. Vercel
 1. Import repo ini di vercel.com → New Project.
 2. Isi Environment Variables sesuai `.env.example`. Secret acak: `openssl rand -hex 24`.
-3. Deploy. `NEXT_PUBLIC_SITE_URL` opsional; kalau kosong, domain produksi Vercel yang dipakai.
+3. Deploy. Domain (`https://senjakala.vercel.app`) di-hardcode di `src/lib/config.ts`.
 
 Cron harian di `vercel.json` menghapus data bacaan yang lewat 30 hari, sekaligus menjaga project Supabase gratis tidak di-pause.
 
