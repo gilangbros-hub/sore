@@ -128,16 +128,6 @@ export function ResultForm({ code, kind, status, initial, meta: initialMeta }: {
             </select>
           </label>
         )}
-        {kind === 'palm' && (
-          <label className={label}>
-            Tangan yang difoto
-            <select className="field" value={meta.hand} onChange={(e) => setMeta((m) => ({ ...m, hand: e.target.value as ReadingMeta['hand'] }))}>
-              <option value="">Pilih…</option>
-              <option value="kanan">Kanan</option>
-              <option value="kiri">Kiri</option>
-            </select>
-          </label>
-        )}
         {status === 'sold' && (
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <button
@@ -183,7 +173,7 @@ export function ResultForm({ code, kind, status, initial, meta: initialMeta }: {
 
       {kind === 'palm' && (
         <>
-          {PALM_LINES.map((l) => <div key={l.key}>{area(l.key, `${l.n} · ${l.name}`, 4)}</div>)}
+          {PALM_LINES.map((l) => <div key={l.key}>{area(l.key, `${l.n} · ${l.name}`, 4, 'Baca dari kedua tangan. Pisahkan paragraf dengan satu baris kosong. Maksimal 2–3 paragraf pendek.')}</div>)}
           {area('summary', 'Ringkasan', 3)}
           <label className={label}>
             Pertanyaan penutup

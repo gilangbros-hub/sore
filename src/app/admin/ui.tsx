@@ -7,7 +7,7 @@ export function AdminShell({ children, back }: { children: ReactNode; back?: boo
     <div className="mx-auto flex max-w-[1100px] flex-col gap-6 px-5 py-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="font-serif text-2xl font-semibold text-ivory-50 no-underline hover:text-ivory-50">Admin Ruang Senja</Link>
+          <Link href="/admin" className="font-serif text-2xl font-semibold text-ivory-50 no-underline hover:text-ivory-50">Admin Senjakala Reading</Link>
           {back && <Link href="/admin" className="flink text-sm font-semibold">← Kembali ke antrean</Link>}
         </div>
         <form action={logout}><button className="btn btn-secondary btn-sm">Keluar</button></form>

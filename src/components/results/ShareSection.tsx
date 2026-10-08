@@ -42,11 +42,11 @@ export function ShareSection({ kind, token, blurb, preview, discussHref }: { kin
   }
 
   async function shareSite() {
-    const data = { title: 'Ruang Senja', text: 'Coba bacaan tarot, garis tangan, atau aura di Ruang Senja.', url: SITE_URL };
+    const data = { title: 'Senjakala Reading', text: 'Coba bacaan tarot, garis tangan, atau aura di Senjakala Reading.', url: SITE_URL };
     try {
       if (navigator.share) return await navigator.share(data);
       await navigator.clipboard.writeText(`${data.text} ${data.url}`);
-      setNote('Link Ruang Senja tersalin. Tempel di chat temanmu.');
+      setNote('Link Senjakala Reading tersalin. Tempel di chat temanmu.');
     } catch {
       /* user closed the share sheet */
     }

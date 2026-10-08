@@ -40,7 +40,7 @@ const STEPS = [
   ['Pilih bacaan', 'Tarot, garis tangan, aura, atau ketiganya.'],
   ['Bayar via Lynk.id', 'Pembayaran diproses di halaman Lynk.id.'],
   ['Masukkan kode & kirim data', 'Kode dikirim ke WhatsApp-mu. Data dan foto cukup dikirim lewat chat.'],
-  ['Terima bacaan di WhatsApp', 'Dalam 1–3 jam. Link-nya bisa kamu buka lagi kapan saja.'],
+  ['Terima bacaan di WhatsApp', 'Paling lambat 24 jam. Link-nya bisa kamu buka lagi kapan saja.'],
 ];
 
 export default function Home() {
@@ -70,7 +70,7 @@ export default function Home() {
               Tanya kartu, telapak tangan, atau <em className="font-medium italic text-amber-400">auramu</em> malam ini.
             </h1>
             <p className="text-pretty m-0 max-w-[30ch] text-lg leading-[1.6] text-mist-300">
-              Bacaan personal, dikirim ke WhatsApp-mu dalam 1–3 jam.
+              Bacaan personal, dikirim ke WhatsApp-mu paling lambat 24 jam.
             </p>
             <p className="m-0 mt-1 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-sm text-mist-300">
               <span className="inline-flex items-center gap-1.5"><Check />Tanpa akun</span>
@@ -100,7 +100,7 @@ export default function Home() {
               <ProductCard
                 item="palm"
                 title="Baca Garis Tangan"
-                desc="Kirim foto telapak tanganmu. Empat garis utama dibaca satu per satu."
+                desc="Kirim foto kedua telapak tanganmu. Empat garis utama dibaca dari tangan kanan dan kiri."
                 cta="Pilih garis tangan"
                 art={
                   <Tile>

@@ -36,16 +36,16 @@ export default function FaqPage() {
               <p className="m-0">Bacaan ini dibuat untuk hiburan dan bahan refleksi. Pakai sebagai cermin, bukan sebagai keputusan.</p>
             </QA>
             <QA q="Siapa yang membaca?">
-              <p className="m-0">Setiap bacaan disusun langsung oleh pembaca Ruang Senja berdasarkan data dan foto yang kamu kirim, satu per satu.</p>
+              <p className="m-0">Setiap bacaan disusun langsung oleh pembaca Senjakala Reading berdasarkan data dan foto yang kamu kirim, satu per satu.</p>
             </QA>
             <QA q="Berapa lama bacaanku jadi?">
-              <p className="m-0">Biasanya 1–3 jam setelah datamu kami terima di WhatsApp. Link bacaan dikirim ke WhatsApp-mu, dan bisa kamu buka berkali-kali selama {RESULT_TTL_DAYS} hari.</p>
+              <p className="m-0">Paling lambat 24 jam setelah datamu kami terima di WhatsApp. Link bacaan dikirim ke WhatsApp-mu, dan bisa kamu buka berkali-kali selama {RESULT_TTL_DAYS} hari.</p>
               <p className="m-0">
                 Data yang masuk setelah {HOURS.close} WIB dibaca mulai {HOURS.open} WIB keesokan harinya. Cek progres kapan saja lewat <Link href="/kode">Punya kode?</Link>
               </p>
             </QA>
             <QA q="Bagaimana foto saya dipakai?">
-              <p className="m-0">Foto telapak tangan atau wajah kamu kirim lewat WhatsApp, hanya dipakai untuk membuat bacaanmu, dan kami hapus setelah bacaan dikirim. Foto tidak pernah muncul di website atau di kartu Story.</p>
+              <p className="m-0">Foto kedua telapak tangan atau wajah kamu kirim lewat WhatsApp, hanya dipakai untuk membuat bacaanmu, dan kami hapus setelah bacaan dikirim. Foto tidak pernah muncul di website atau di kartu Story.</p>
               <p className="m-0">Penjelasan lengkapnya ada di halaman <Link href="/privasi">Privasi</Link>.</p>
             </QA>
             <QA q="Belum dapat kode atau kodenya hilang?">

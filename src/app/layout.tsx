@@ -20,9 +20,9 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: 'Ruang Senja · Tarot, garis tangan, dan aura', template: '%s · Ruang Senja' },
-  description: 'Bacaan tarot, garis tangan, dan aura yang personal, dikirim ke WhatsApp-mu dalam 1–3 jam. Untuk hiburan dan refleksi diri.',
-  openGraph: { siteName: 'Ruang Senja', locale: 'id_ID', type: 'website' },
+  title: { default: 'Senjakala Reading · Tarot, garis tangan, dan aura', template: '%s · Senjakala Reading' },
+  description: 'Bacaan tarot, garis tangan, dan aura yang personal, dikirim ke WhatsApp-mu paling lambat 24 jam. Untuk hiburan dan refleksi diri.',
+  openGraph: { siteName: 'Senjakala Reading', locale: 'id_ID', type: 'website' },
 };
 
 export const viewport: Viewport = { themeColor: '#15122E', colorScheme: 'dark' };

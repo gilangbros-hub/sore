@@ -22,7 +22,7 @@ export type Order = {
   data_received_at: string | null;
   nickname: string | null;
   focus: string | null;
-  hand: 'kanan' | 'kiri' | null;
+  hand: 'kanan' | 'kiri' | null; // legacy single-hand palm orders; two-hand orders leave it null
   result_token: string | null;
   result_draft: unknown;
   result: unknown;

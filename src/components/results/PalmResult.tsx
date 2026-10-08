@@ -15,9 +15,9 @@ export function PalmResult({ r, nickname, hand, deliveredAt, token, discussHref 
   return (
     <div className="mx-auto flex max-w-[760px] flex-col gap-8">
       <div className="flex flex-col items-center gap-2.5 text-center">
-        <p className="eyebrow">Baca Garis Tangan · Tangan {hand === 'kiri' ? 'kiri' : 'kanan'}</p>
+        <p className="eyebrow">Baca Garis Tangan · {hand ? `Tangan ${hand}` : 'Dua tangan'}</p>
         <h1 className="m-0 font-serif text-4xl font-semibold leading-[1.05] sm:text-[40px]">Cerita di telapak {nickname}</h1>
-        <p className="m-0 max-w-[36ch] text-base leading-[1.6] text-mist-300">Empat garis utama, dibaca satu per satu. Gambar di bawah adalah ilustrasi, bukan fotomu.</p>
+        <p className="m-0 max-w-[36ch] text-base leading-[1.6] text-mist-300">Empat garis utama dari kedua tanganmu, dibaca satu per satu. Gambar di bawah adalah ilustrasi, bukan fotomu.</p>
         <DeliveredPill at={deliveredAt} />
       </div>
 
