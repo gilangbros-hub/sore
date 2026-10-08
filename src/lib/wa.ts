@@ -4,24 +4,24 @@ import { PRODUCT_NAME, RESULT_TTL_DAYS, SITE_URL, type ProductKind } from './con
 
 /** Buyer → you: sending the data for the reading. */
 export function dataRequestText(product: ProductKind, code: string): string {
-  const head = `Halo Ruang Senja, ini data untuk bacaan ${PRODUCT_NAME[product]}.\nKode: ${code}\n\nNama panggilan: `;
+  const head = `Halo Senjakala Reading, ini data untuk bacaan ${PRODUCT_NAME[product]}.\nKode: ${code}\n\nNama panggilan: `;
   if (product === 'tarot') return `${head}\nFokus (Cinta / Karier / Keuangan / Diri sendiri / Umum): \nPertanyaan (opsional): `;
-  if (product === 'palm') return `${head}\nTangan yang difoto (kanan / kiri): \n\n(Foto telapak tangan aku lampirkan di chat ini)`;
+  if (product === 'palm') return `${head}\nTangan yang paling sering dipakai (kanan / kiri): \n\n(Foto telapak tangan kanan dan kiri aku lampirkan di chat ini)`;
   return `${head}\n\n(Foto wajah aku lampirkan di chat ini)`;
 }
 
 /** Buyer → you: paid but no code yet. */
-export const NO_CODE_TEXT = 'Halo Ruang Senja, aku sudah bayar di Lynk.id tapi belum dapat kode akses. Nama/email di Lynk: ';
+export const NO_CODE_TEXT = 'Halo Senjakala Reading, aku sudah bayar di Lynk.id tapi belum dapat kode akses. Nama/email di Lynk: ';
 
 /** Buyer → you: general help with a code. */
-export const helpText = (code: string) => `Halo Ruang Senja, aku mau tanya soal pesananku. Kode: ${code}`;
+export const helpText = (code: string) => `Halo Senjakala Reading, aku mau tanya soal pesananku. Kode: ${code}`;
 
 /** Buyer → you: talk about a delivered reading. */
-export const discussText = (code: string) => `Halo Ruang Senja, aku mau ngobrol soal bacaanku. Kode: ${code}`;
+export const discussText = (code: string) => `Halo Senjakala Reading, aku mau ngobrol soal bacaanku. Kode: ${code}`;
 
 /** You → buyer: the access code(s) after payment. */
 export function codeDeliveryText(name: string | null, items: Array<{ code: string; product: ProductKind }>): string {
-  const greet = `Halo${name ? ` ${name.split(' ')[0]}` : ''}, terima kasih sudah memesan di Ruang Senja.`;
+  const greet = `Halo${name ? ` ${name.split(' ')[0]}` : ''}, terima kasih sudah memesan di Senjakala Reading.`;
   const lines = items.map((i) => `${PRODUCT_NAME[i.product]}: ${i.code}\n${SITE_URL}/status/${i.code}`);
   return [
     greet,
@@ -47,6 +47,6 @@ export function resultDeliveryText(nickname: string | null, product: ProductKind
     '',
     'Kalau ada yang mau ditanyakan soal bacaannya, balas saja chat ini.',
     '',
-    'Ruang Senja untuk hiburan dan refleksi diri, bukan pengganti nasihat profesional.',
+    'Senjakala Reading untuk hiburan dan refleksi diri, bukan pengganti nasihat profesional.',
   ].join('\n');
 }

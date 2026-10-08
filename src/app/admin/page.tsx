@@ -86,8 +86,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
         <List rows={toSend.data as Order[]} empty="Semua kode sudah dikirim." since={(o) => o.sold_at} lateAfterH={1} />
       </Panel>
 
-      <Panel title={`2 · Sedang dibaca (${reading.data?.length ?? 0})`} aside={<span className="text-sm text-mist-300">Merah = lewat 3 jam sejak data diterima.</span>}>
-        <List rows={reading.data as Order[]} empty="Tidak ada yang menunggu dibaca." since={(o) => o.data_received_at} lateAfterH={3} />
+      <Panel title={`2 · Sedang dibaca (${reading.data?.length ?? 0})`} aside={<span className="text-sm text-mist-300">Merah = lewat 20 jam sejak data diterima (batas janji 24 jam).</span>}>
+        <List rows={reading.data as Order[]} empty="Tidak ada yang menunggu dibaca." since={(o) => o.data_received_at} lateAfterH={20} />
       </Panel>
 
       <Panel title={`Menunggu data dari pembeli (${waiting.data?.length ?? 0})`}>

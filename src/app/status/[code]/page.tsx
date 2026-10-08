@@ -7,7 +7,7 @@ import { PALM_PATH } from '@/components/Art';
 import { AuraGuide, PalmGuide } from '@/components/PhotoGuides';
 import { getOrderByCode } from '@/lib/orders';
 import { CODE_RE, normalizeCode } from '@/lib/codes';
-import { maskWa, wibStamp, wibTime } from '@/lib/format';
+import { maskWa, wibStamp } from '@/lib/format';
 import { HOURS, PRODUCT_NAME, waLink, type ProductKind } from '@/lib/config';
 import { dataRequestText, discussText, helpText } from '@/lib/wa';
 
@@ -65,7 +65,7 @@ function Waiting({ kind }: { kind: ProductKind }) {
 
 const NEEDS: Record<ProductKind, string[]> = {
   tarot: ['Nama panggilan (nama asli tidak perlu)', 'Fokus bacaan: Cinta, Karier, Keuangan, Diri sendiri, atau Umum', 'Pertanyaanmu, kalau ada. Pertanyaan terbuka biasanya menghasilkan bacaan yang lebih berguna daripada ya/tidak.'],
-  palm: ['Nama panggilan (nama asli tidak perlu)', 'Tangan yang difoto: kanan atau kiri. Bingung? Pakai tangan yang paling sering kamu gunakan.', 'Satu foto telapak tangan yang jelas'],
+  palm: ['Nama panggilan (nama asli tidak perlu)', 'Tangan yang paling sering kamu pakai: kanan atau kiri', 'Dua foto yang jelas: telapak tangan kanan dan telapak tangan kiri'],
   aura: ['Nama panggilan (nama asli tidak perlu)', 'Satu foto wajah yang natural, tanpa filter'],
 };
 
@@ -115,9 +115,10 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
   const needsData = st === 'sold';
   const productLine =
     order.product === 'tarot' && order.focus ? `${PRODUCT_NAME.tarot} · ${order.focus}`
-    : order.product === 'palm' && order.hand ? `${PRODUCT_NAME.palm} · ${order.hand === 'kiri' ? 'Kiri' : 'Kanan'}`
+    // Orders from before the two-hand reading recorded which single hand was photographed.
+    : order.product === 'palm' && order.hand ? `Baca Garis Tangan · ${order.hand === 'kiri' ? 'Kiri' : 'Kanan'}`
     : PRODUCT_NAME[order.product];
-  const eta = order.data_received_at ? new Date(new Date(order.data_received_at).getTime() + 3 * 3600_000) : null;
+  const eta = order.data_received_at ? new Date(new Date(order.data_received_at).getTime() + 24 * 3600_000) : null;
 
   const steps: Step[] = [
     { title: 'Pembayaran diterima', sub: order.sold_at ? wibStamp(order.sold_at) : 'Lewat Lynk.id', state: 'done' },
@@ -125,8 +126,8 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
       ? { title: 'Kirim datamu lewat WhatsApp', sub: 'Langkah ini menunggu kamu', state: 'now' }
       : { title: 'Data diterima', sub: order.data_received_at ? wibStamp(order.data_received_at) : 'Lewat WhatsApp', state: 'done' },
     st === 'reading'
-      ? { title: 'Bacaan sedang disiapkan', sub: eta ? `Estimasi selesai sebelum ${wibTime(eta)} WIB` : 'Biasanya 1–3 jam', state: 'now' }
-      : { title: ready ? 'Bacaan selesai disiapkan' : 'Bacaan disiapkan', sub: 'Biasanya 1–3 jam setelah data diterima', state: ready ? 'done' : 'todo' },
+      ? { title: 'Bacaan sedang disiapkan', sub: eta ? `Paling lambat ${wibStamp(eta)}` : 'Paling lambat 24 jam', state: 'now' }
+      : { title: ready ? 'Bacaan selesai disiapkan' : 'Bacaan disiapkan', sub: 'Paling lambat 24 jam setelah data diterima', state: ready ? 'done' : 'todo' },
     ready
       ? { title: 'Bacaan sudah siap', sub: wibStamp(order.delivered_at!), state: 'done' }
       : { title: 'Bacaan siap dibuka', sub: 'Link-nya juga dikirim ke WhatsApp-mu', state: 'todo' },
@@ -155,7 +156,7 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
               <>
                 <h1 className="text-balance m-0 font-serif text-4xl font-semibold leading-[1.1]">Bacaanmu sedang disiapkan</h1>
                 <p className="text-pretty m-0 text-base leading-[1.65] text-mist-300">
-                  Datamu sudah kami terima. Dalam 1–3 jam, link bacaannya kami kirim ke WhatsApp
+                  Datamu sudah kami terima. Paling lambat 24 jam, link bacaannya kami kirim ke WhatsApp
                   {order.buyer_phone ? <> <strong className="whitespace-nowrap font-semibold text-ivory-50">{maskWa(order.buyer_phone)}</strong></> : '-mu'}.
                 </p>
               </>
@@ -182,7 +183,7 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
               </ul>
               {order.product === 'palm' && (
                 <div className="flex flex-col gap-3">
-                  <h3 className="m-0 text-[15px] font-semibold">Cara memotret telapak tangan</h3>
+                  <h3 className="m-0 text-[15px] font-semibold">Cara memotret telapak tangan (kanan dan kiri)</h3>
                   <PalmGuide />
                 </div>
               )}
@@ -238,7 +239,7 @@ export default async function StatusPage({ params }: { params: Promise<{ code: s
             <p className="m-0 text-sm leading-[1.6]">
               {ready
                 ? 'Ada bagian yang ingin kamu tanyakan atau bahas lebih lanjut? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.'
-                : 'Salah kirim data, atau sudah lewat 3 jam tapi belum ada kabar? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.'}
+                : 'Salah kirim data, atau sudah lewat 24 jam tapi belum ada kabar? Chat kami langsung, kodemu sudah otomatis tertulis di pesan.'}
             </p>
             <a href={waLink(ready ? discussText(code) : helpText(code))} className={`btn w-full ${needsData ? 'btn-secondary' : 'btn-primary'}`}>
               <ChatIcon />

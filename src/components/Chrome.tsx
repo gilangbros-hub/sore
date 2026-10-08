@@ -4,14 +4,14 @@ import { waLink } from '@/lib/config';
 
 export function Logo() {
   return (
-    <Link href="/" aria-label="Ruang Senja, ke beranda" className="flex min-h-[44px] flex-none items-center gap-2.5 whitespace-nowrap text-ivory-50 no-underline hover:text-ivory-50">
+    <Link href="/" aria-label="Senjakala Reading, ke beranda" className="flex min-h-[44px] flex-none items-center gap-2.5 whitespace-nowrap text-ivory-50 no-underline hover:text-ivory-50">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
         <circle cx="16" cy="15" r="9" fill="#F0B067" />
         <circle cx="20" cy="12" r="8" fill="#15122E" />
         <path d="M3 24h26" stroke="#E3C584" strokeWidth="1.5" strokeLinecap="round" />
         <path d="M8 28h16" stroke="#E3C584" strokeWidth="1.5" strokeLinecap="round" opacity=".5" />
       </svg>
-      <span className="font-serif text-2xl font-semibold tracking-[.01em]">Ruang Senja</span>
+      <span className="font-serif text-[21px] font-semibold tracking-[.01em] sm:text-2xl">Senjakala Reading</span>
     </Link>
   );
 }
@@ -32,7 +32,7 @@ export function Footer() {
     <footer className="relative border-t border-ivory-50/10 px-5 pb-8 pt-6">
       <div className="mx-auto flex max-w-[1040px] flex-col gap-2.5">
         <p className="m-0 text-sm leading-[1.6] text-mist-300">
-          Ruang Senja untuk hiburan dan refleksi diri, bukan pengganti nasihat profesional.
+          Senjakala Reading untuk hiburan dan refleksi diri, bukan pengganti nasihat profesional.
         </p>
         <nav aria-label="Tautan bawah" className="flex flex-wrap gap-x-5 text-sm">
           <Link href="/faq" className="flink">FAQ</Link>

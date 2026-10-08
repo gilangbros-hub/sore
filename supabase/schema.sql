@@ -1,4 +1,4 @@
--- Ruang Senja schema. Run once in Supabase: Dashboard → SQL Editor → paste → Run.
+-- Senjakala Reading schema. Run once in Supabase: Dashboard → SQL Editor → paste → Run.
 -- Safe to re-run.
 
 create extension if not exists pgcrypto;

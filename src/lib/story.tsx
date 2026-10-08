@@ -178,7 +178,7 @@ export async function storyImage(kind: ProductKind, result: TarotResult | PalmRe
               alt=""
               src={svgUri('<circle cx="16" cy="15" r="9" fill="#F6EFE3"/><circle cx="20" cy="12" r="8" fill="#9A6463"/><path d="M3 24h26" stroke="#F6EFE3" stroke-width="1.5" stroke-linecap="round"/><path d="M8 28h16" stroke="#F6EFE3" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>', '0 0 32 32')}
             />
-            <div style={{ display: 'flex', marginLeft: 18, fontFamily: 'Cormorant', fontWeight: 600, fontSize: 64 }}>Ruang Senja</div>
+            <div style={{ display: 'flex', marginLeft: 18, fontFamily: 'Cormorant', fontWeight: 600, fontSize: 64 }}>Senjakala Reading</div>
           </div>
           <div style={{ display: 'flex', marginTop: 12, fontSize: 32, fontWeight: 600, letterSpacing: 1.3, color: '#0F0C24', backgroundColor: 'rgba(246,239,227,.92)', padding: '10px 26px', borderRadius: 999 }}>
             {SITE_HOST}

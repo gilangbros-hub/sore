@@ -36,16 +36,16 @@ export default function PrivasiPage() {
           <S title="Data yang kami terima">
             <P>
               Dari Lynk.id, setelah pembayaranmu berhasil: nama, email, nomor HP, dan nomor pesanan. Ini kami pakai untuk mengirim kode akses ke WhatsApp-mu.
-              Data pembayaran diproses Lynk.id, bukan oleh Ruang Senja.
+              Data pembayaran diproses Lynk.id, bukan oleh Senjakala Reading.
             </P>
             <P>
-              Lewat WhatsApp, dari kamu: nama panggilan, fokus dan pertanyaan tarot (kalau ada), serta foto telapak tangan atau wajah untuk bacaan garis tangan dan aura.
+              Lewat WhatsApp, dari kamu: nama panggilan, fokus dan pertanyaan tarot (kalau ada), serta foto kedua telapak tangan atau wajah untuk bacaan garis tangan dan aura.
             </P>
           </S>
 
           <S title="Cara fotomu diproses">
             <P>
-              Fotomu hanya dilihat oleh pembaca Ruang Senja yang menyusun bacaanmu, dan dipakai hanya untuk bacaan itu. Foto tidak diunggah ke website, tidak dibagikan ke pihak lain,
+              Fotomu hanya dilihat oleh pembaca Senjakala Reading yang menyusun bacaanmu, dan dipakai hanya untuk bacaan itu. Foto tidak diunggah ke website, tidak dibagikan ke pihak lain,
               dan tidak pernah muncul di kartu Story. Setelah bacaanmu dikirim, foto kami hapus dari chat.
             </P>
           </S>
@@ -66,7 +66,7 @@ export default function PrivasiPage() {
 
           <S title="Kontak">
             <P>
-              Pertanyaan soal data pribadimu bisa dikirim lewat <a href={waLink('Halo Ruang Senja, aku mau tanya soal data pribadiku.')}>WhatsApp</a>.
+              Pertanyaan soal data pribadimu bisa dikirim lewat <a href={waLink('Halo Senjakala Reading, aku mau tanya soal data pribadiku.')}>WhatsApp</a>.
             </P>
           </S>
         </article>

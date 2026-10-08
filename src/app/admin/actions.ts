@@ -102,13 +102,12 @@ export async function updateBuyerPhone(code: string, raw: string): Promise<strin
 const metaSchema = z.object({
   nickname: z.string().trim().max(40),
   focus: z.union([z.literal(''), z.enum(FOCUS_OPTIONS)]),
-  hand: z.union([z.literal(''), z.enum(['kanan', 'kiri'])]),
 });
 export type ReadingMeta = z.infer<typeof metaSchema>;
 
 function metaUpdate(meta: ReadingMeta) {
   const m = metaSchema.parse(meta);
-  return { nickname: m.nickname || null, focus: m.focus || null, hand: m.hand || null };
+  return { nickname: m.nickname || null, focus: m.focus || null };
 }
 
 /** The buyer sent their data on WhatsApp: their progress page moves to "sedang disiapkan". */
@@ -133,7 +132,6 @@ export async function publishResult(code: string, meta: ReadingMeta, draft: unkn
   const m = metaUpdate(meta);
   if (!m.nickname) return { ok: false, error: 'Isi nama panggilan untuk judul bacaan.' };
   if (o.product === 'tarot' && !m.focus) return { ok: false, error: 'Pilih fokus tarot.' };
-  if (o.product === 'palm' && !m.hand) return { ok: false, error: 'Pilih tangan yang difoto.' };
   const parsed = RESULT_SCHEMA[o.product].safeParse(draft);
   if (!parsed.success) {
     const i = parsed.error.issues[0];

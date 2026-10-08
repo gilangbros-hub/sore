@@ -90,7 +90,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ code: s
             kind={order.product}
             status={order.status}
             initial={order.result_draft ?? order.result ?? null}
-            meta={{ nickname: order.nickname ?? order.buyer_name?.split(' ')[0] ?? '', focus: (order.focus ?? '') as never, hand: (order.hand ?? '') as never }}
+            meta={{ nickname: order.nickname ?? order.buyer_name?.split(' ')[0] ?? '', focus: (order.focus ?? '') as never }}
           />
         </Panel>
       )}

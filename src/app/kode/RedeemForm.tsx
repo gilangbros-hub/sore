@@ -64,7 +64,7 @@ export function RedeemForm({ initial = '' }: { initial?: string }) {
               <p className="m-0 text-[15px] font-semibold text-coral-300">Kodenya belum cocok</p>
               <p className="m-0 text-sm leading-[1.6] text-ivory-50">
                 Coba cek lagi huruf dan angkanya, termasuk tanda strip. Masih belum bisa?{' '}
-                <a href={waLink('Halo Ruang Senja, kode aksesku tidak bisa dipakai.')}>Chat kami di WhatsApp</a> dan kirim bukti bayar dari Lynk.id, nanti kami bantu.
+                <a href={waLink('Halo Senjakala Reading, kode aksesku tidak bisa dipakai.')}>Chat kami di WhatsApp</a> dan kirim bukti bayar dari Lynk.id, nanti kami bantu.
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function RedeemForm({ initial = '' }: { initial?: string }) {
               <p className="m-0 text-[15px] font-semibold text-gold-300">Masa aktif bacaan ini sudah lewat</p>
               <p className="m-0 text-sm leading-[1.6] text-ivory-50">
                 Bacaan bisa dibuka selama 30 hari setelah dikirim, lalu datanya kami hapus. Ada pertanyaan?{' '}
-                <a href={waLink(`Halo Ruang Senja, aku mau tanya soal kode ${code}.`)}>Chat kami di WhatsApp</a>.
+                <a href={waLink(`Halo Senjakala Reading, aku mau tanya soal kode ${code}.`)}>Chat kami di WhatsApp</a>.
               </p>
             </div>
           </div>
